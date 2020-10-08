@@ -1,0 +1,11 @@
+author = Artur Tarassow
+email = atecon@posteo.de
+version = 0.1
+date = 2020-10-10
+description = Collection of useful date time related tools
+tags = C88
+min-version = 2020a
+public = create_iso8601_series dates_to_iso8601 date_to_iso8601
+data-requirement = no-data-ok
+help = calendar_utils_help.txt
+sample-script = calendar_utils_sample.inp

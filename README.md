@@ -1,2 +1,2 @@
 # calendar_utils
-Collection of tools to work with calendar related things
+Collection of useful date time related tools

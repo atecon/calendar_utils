@@ -1,0 +1,52 @@
+function series create_iso8601_series (const scalar init_date "numeric ISO8601")
+    /* Return series with dates in ISO8601 format. 'init_date' refers to the initial date for the first observation, and the length of the data set determines the following recursive dates. Works for both time-series and panels. */
+
+    if $datatype == 3
+        scalar N = $nobs/$pd
+        scalar T = $pd
+    elif $datatype == 2
+        return $obsdate
+    else
+        funcerr "Data must be either of panel or time-series type."
+    endif
+
+    string date_string = sprintf("%d", init_date)
+    errorif(strlen(date_string) != 8, "Numeric ISO8601 date must comprise eight digits.")
+
+    scalar init_epoch_date = epochday(init_date)
+    scalar last_epoch_date = init_epoch_date + T - 1
+    matrix epoch_days_values = seq(init_epoch_date, last_epoch_date)'
+    series epoch_days = vec(ones(T, N) .* epoch_days_values)
+    series iso_date = isodate(epoch_days, 1)
+
+    return iso_date
+end function
+
+
+function series dates_to_iso8601 (const series dates "Date string",
+                                  const string date_format "e.g. %Y-%m-%d")
+    /* Transforms a string-valued dates series to the numeric iso8601 format. Works for panel, time-series and cross-sectional data. */
+
+    series iso8601 = NA
+    smpl dates --no-missing
+
+    loop i = 1..nobs(dates)
+        iso8601[i] = date_to_iso8601(dates[i], date_format)
+    endloop
+
+    smpl full
+
+    return iso8601
+end function
+
+
+function scalar date_to_iso8601 (const string date "Date string",
+                                 const string date_format "e.g. %Y-%m-%d")
+    /* Transforms a date string to the numeric iso8601 format. */
+
+    scalar iso8601 = NA
+    scalar seconds = strptime(date, date_format)
+    iso8601 = atof(strftime(seconds, "%Y%m%d"))
+
+    return iso8601
+end function

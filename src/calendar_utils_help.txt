@@ -1,0 +1,53 @@
+Collection of useful date time related tools.
+
+Most functions are convenience functions for working with date strings and date string series.
+
+Please ask questions and report bugs on the gretl mailing list if possible. Alternatively, create an issue ticket on the github repo (see below).
+Source code and test script(s) can be found here:
+https://github.com/atecon/calendar_utils
+
+
+
+PUBLIC FUNCTIONS:
+-----------------------------------------------------------------------
+Function:       date_to_iso8601(const string date, const string date_format)
+
+Arguments:
+date:           string, Date string
+date_format:    string, Format of 'date', e.g. "%Y-%m-%d"
+
+
+Return:
+Scalar value of casted 'date' in the ISO8601 format.
+-----------------------------------------------------------------------
+
+-----------------------------------------------------------------------
+Function:       dates_to_iso8601(const series dates, const string date_format)
+
+Arguments:
+dates:          series, Series of date strings
+date_format:    string, Format of 'date', e.g. "%Y-%m-%d"
+
+
+Return:
+Series holding casted values of 'dates' in the ISO8601 format.
+-----------------------------------------------------------------------
+
+-----------------------------------------------------------------------
+Function:       create_iso8601_series(const scalar init_date)
+
+Arguments:
+init_date:      int, Initial date in ISO8601 format
+
+
+Return:
+Series holding a sequence of dates in the ISO8601 format starting with
+'init_date'. The last date of the series created depends on the length
+of the data set.
+-----------------------------------------------------------------------
+
+
+Changelog
+---------
+- v0.1, October 2020:
+    + initial release
