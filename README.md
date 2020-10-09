@@ -3,6 +3,13 @@ Collection of useful date time related tools. Most functions are convenience fun
 
 The package comprises three public functions which are described in the following.
 
+# Installation
+The package can be downloaded and loaded from the official gretl package server via the command:
+```
+pkg install calendar_utils    # Download once
+include calendar_utils.gfn    # Load into memory
+```
+
 # Public functions
 
 ## ```date_to_iso8601()```
