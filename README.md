@@ -92,6 +92,9 @@ This yields:
 2:3     20200103
 ```
 
+# Tests
+Unit tests can be found in the file ```./tests/run_tests.inp``` and executed on linux through the shell script ```./run_tests.sh```.
+
 # Changelog
 - v0.1, October 2020:
     + initial release
