@@ -1,6 +1,4 @@
-% The "calendar_utils" package for Gretl
-
-# Introduction
+# The "calendar_utils" package for Gretl
 Collection of useful date time related tools. Most functions are convenience functions for working with date strings and date string series.
 
 The package comprises three public functions which are described in the following.
@@ -38,7 +36,7 @@ The following scalar values are printed:
 ## ```dates_to_iso860```
 The function ```dates_to_iso8601()``` casts the date strings of a series to the numeric ISO8601 format. It works for all gretl data sets namely cross-sectional, time-series and panel data sets.
 
-Here are examples on how to use this function. First, we create tiny dummy panel data set with two cross-sectional units and for each we have a time-series of length three. Series ```z``` is a string-values series holding some date strings. These date strings are casted to the ISO8601 format.
+Here are examples on how to use this function. First, we create tiny dummy panel data set with two cross-sectional units and for each we have a time-series of length three. Series ```z``` is a string-values series holding some date strings. These date strings are cast to the ISO8601 format.
 
 ```
 nulldata 6
