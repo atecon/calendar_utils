@@ -2,8 +2,8 @@
 <gretl-functions>
 <gretl-function-package name="calendar_utils" no-data-ok="true" minver="2020c">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.1</version>
-<date>2020-10-10</date>
+<version>0.2</version>
+<date>2020-10-14</date>
 <description>Collection of useful date time related tools</description>
 <tags>C88</tags>
 <help>
@@ -56,10 +56,24 @@ of the data set.
 -----------------------------------------------------------------------
 
 
+-----------------------------------------------------------------------
+Function:       numeric_to_extended_iso8601(const int date)
+
+Arguments:
+date:           int, Numeric date in ISO8601 format (YYYYMMDD)
+
+
+Return:
+Date string in the extended ISO8601 date format (YYYY-MM-DD).
+-----------------------------------------------------------------------
+
+
 Changelog
 ---------
+- v0.2, October 2020:
+    + Add new function numeric_to_extended_iso8601()
 - v0.1, October 2020:
-    + initial release
+    + Initial release
 </help>
 <gretl-function name="create_iso8601_series" type="series">
  <params count="1">
@@ -121,6 +135,23 @@ iso8601 = atof(strftime(seconds, &quot;%Y%m%d&quot;))
 return iso8601
 </code>
 </gretl-function>
+<gretl-function name="numeric_to_extended_iso8601" type="string">
+ <params count="1">
+  <param name="value" type="int" const="true">
+<description>ISO8601 numeric date value</description>
+  </param>
+ </params>
+<code>/* Cast numeric ISO8601 date (YYYYMMDD) to extended ISO8601 date string.
+In case of an error, an empty string is returned. */
+string date
+catch string date = isodate(epochday(value), 1)
+if $error
+  sprintf(&quot;Numeric value %d cannot be casted to date string.&quot;, value)
+  return &quot;&quot;
+endif
+return date
+</code>
+</gretl-function>
 <sample-script>
 clear
 set verbose off
@@ -139,6 +170,14 @@ scalar iso3 = date_to_iso8601(date3, &quot;%d-%m-%Y&quot;)
 scalar iso4 = date_to_iso8601(date4, &quot;%d/%m/%Y&quot;)
 
 print iso1 iso2 iso3 iso4
+
+# Cast numeric ISO8601 format back to extended ISO8601 data string
+string date1_casted = numeric_to_extended_iso8601(iso1)
+string date2_casted = numeric_to_extended_iso8601(iso2)
+string date3_casted = numeric_to_extended_iso8601(iso3)
+string date4_casted = numeric_to_extended_iso8601(iso4)
+
+print date1_casted date2_casted date3_casted date4_casted
 
 
 /* Open some data set (here a panel with 2 cross-sectional units) and

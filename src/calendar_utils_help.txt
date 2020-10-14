@@ -47,7 +47,21 @@ of the data set.
 -----------------------------------------------------------------------
 
 
+-----------------------------------------------------------------------
+Function:       numeric_to_extended_iso8601(const int date)
+
+Arguments:
+date:           int, Numeric date in ISO8601 format (YYYYMMDD)
+
+
+Return:
+Date string in the extended ISO8601 date format (YYYY-MM-DD). Return empty string in case 'date' has not the right format.
+-----------------------------------------------------------------------
+
+
 Changelog
 ---------
+- v0.2, October 2020:
+    + Add new function numeric_to_extended_iso8601()
 - v0.1, October 2020:
-    + initial release
+    + Initial release

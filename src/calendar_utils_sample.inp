@@ -17,6 +17,15 @@ scalar iso4 = date_to_iso8601(date4, "%d/%m/%Y")
 print iso1 iso2 iso3 iso4
 
 
+# Cast numeric ISO8601 format back to extended ISO8601 data string
+string date1_casted = numeric_to_extended_iso8601(iso1)
+string date2_casted = numeric_to_extended_iso8601(iso2)
+string date3_casted = numeric_to_extended_iso8601(iso3)
+string date4_casted = numeric_to_extended_iso8601(iso4)
+
+print date1_casted date2_casted date3_casted date4_casted
+
+
 /* Open some data set (here a panel with 2 cross-sectional units) and
 create a series (sequence) of ISO8601 dates given some initial date. */
 nulldata 6

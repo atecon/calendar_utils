@@ -1,3 +1,19 @@
+function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric date value")
+    /* Cast numeric ISO8601 date (YYYYMMDD) to extended ISO8601 date string.
+    In case of an error, an empty string is returned. */
+
+    string date
+
+    catch string date = isodate(epochday(value), 1)
+    if $error
+        sprintf("Numeric value %d cannot be casted to date string.", value)
+        return ""
+    endif
+
+    return date
+end function
+
+
 function series create_iso8601_series (const scalar init_date "numeric ISO8601")
     /* Return series with dates in ISO8601 format. 'init_date' refers to the initial date for the first observation, and the length of the data set determines the following recursive dates. Works for both time-series and panels. */
 

@@ -1,4 +1,5 @@
 set verbose off
+set assert stop
 clear
 
 include "./src/calendar_utils.inp" --force
@@ -124,5 +125,20 @@ function void test_dates_to_iso8601_panel (void)
     assert(y[6] == 20200903)
 end function
 test_dates_to_iso8601_panel()
+
+function void test_numeric_to_ext_iso8601 (void)
+    print "Start with numeric_to_extended_iso8601()."
+
+    scalar date1 = 19710130
+    scalar date2 = 18440728
+    scalar date3 = 20201014
+    scalar date4 = 20201410
+
+    assert(numeric_to_extended_iso8601(date1) == "1971-01-30")
+    assert(numeric_to_extended_iso8601(date2) == "1844-07-28")
+    assert(numeric_to_extended_iso8601(date3) == "2020-10-14")
+    assert(numeric_to_extended_iso8601(date4) == "")
+end function
+test_numeric_to_ext_iso8601()
 
 quit
