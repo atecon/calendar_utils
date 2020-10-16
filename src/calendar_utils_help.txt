@@ -18,7 +18,7 @@ date_format:    string, Format of 'date', e.g. "%Y-%m-%d"
 
 
 Return:
-Scalar value of casted 'date' in the ISO8601 format.
+Scalar value of cast 'date' in the ISO8601 format.
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -30,7 +30,7 @@ date_format:    string, Format of 'date', e.g. "%Y-%m-%d"
 
 
 Return:
-Series holding casted values of 'dates' in the ISO8601 format.
+Series holding cast values of 'dates' in the ISO8601 format.
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------

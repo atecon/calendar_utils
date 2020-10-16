@@ -6,7 +6,7 @@ function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric da
 
     catch string date = isodate(epochday(value), 1)
     if $error
-        sprintf("Numeric value %d cannot be casted to date string.", value)
+        sprintf("Numeric value %d cannot be cast to date string.", value)
         return ""
     endif
 
