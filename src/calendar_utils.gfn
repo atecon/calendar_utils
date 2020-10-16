@@ -27,7 +27,7 @@ date_format:    string, Format of 'date', e.g. &quot;%Y-%m-%d&quot;
 
 
 Return:
-Scalar value of casted 'date' in the ISO8601 format.
+Scalar value of cast 'date' in the ISO8601 format.
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -39,7 +39,7 @@ date_format:    string, Format of 'date', e.g. &quot;%Y-%m-%d&quot;
 
 
 Return:
-Series holding casted values of 'dates' in the ISO8601 format.
+Series holding cast values of 'dates' in the ISO8601 format.
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -64,7 +64,7 @@ date:           int, Numeric date in ISO8601 format (YYYYMMDD)
 
 
 Return:
-Date string in the extended ISO8601 date format (YYYY-MM-DD).
+Date string in the extended ISO8601 date format (YYYY-MM-DD). Return empty string in case 'date' has not the right format.
 -----------------------------------------------------------------------
 
 
@@ -146,7 +146,7 @@ In case of an error, an empty string is returned. */
 string date
 catch string date = isodate(epochday(value), 1)
 if $error
-  sprintf(&quot;Numeric value %d cannot be casted to date string.&quot;, value)
+  sprintf(&quot;Numeric value %d cannot be cast to date string.&quot;, value)
   return &quot;&quot;
 endif
 return date
@@ -171,13 +171,14 @@ scalar iso4 = date_to_iso8601(date4, &quot;%d/%m/%Y&quot;)
 
 print iso1 iso2 iso3 iso4
 
-# Cast numeric ISO8601 format back to extended ISO8601 data string
-string date1_casted = numeric_to_extended_iso8601(iso1)
-string date2_casted = numeric_to_extended_iso8601(iso2)
-string date3_casted = numeric_to_extended_iso8601(iso3)
-string date4_casted = numeric_to_extended_iso8601(iso4)
 
-print date1_casted date2_casted date3_casted date4_casted
+# Cast numeric ISO8601 format back to extended ISO8601 data string
+string date1_cast = numeric_to_extended_iso8601(iso1)
+string date2_cast = numeric_to_extended_iso8601(iso2)
+string date3_cast = numeric_to_extended_iso8601(iso3)
+string date4_cast = numeric_to_extended_iso8601(iso4)
+
+print date1_cast date2_cast date3_cast date4_cast
 
 
 /* Open some data set (here a panel with 2 cross-sectional units) and
