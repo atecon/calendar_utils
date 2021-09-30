@@ -46,16 +46,19 @@ function void test_date_to_iso8601 (void)
     string date2 = "20200903"
     string date3 = "03-09-2020"
     string date4 = "03/09/2020"
+    string date5 = "1984"
 
     scalar iso1 = date_to_iso8601(date1, "%Y-%m-%d")
     scalar iso2 = date_to_iso8601(date2, "%Y%m%d")
     scalar iso3 = date_to_iso8601(date3, "%d-%m-%Y")
     scalar iso4 = date_to_iso8601(date4, "%d/%m/%Y")
+    scalar iso5 = date_to_iso8601("1984", "%Y")
 
     assert(iso1 == 20200903)
     assert(iso2 == 20200903)
     assert(iso3 == 20200903)
     assert(iso4 == 20200903)
+    assert(iso5 == 19840101)
 end function
 test_date_to_iso8601()
 

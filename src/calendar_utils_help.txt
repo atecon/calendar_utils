@@ -18,7 +18,9 @@ date_format:    string, Format of 'date', e.g. "%Y-%m-%d"
 
 
 Return:
-Scalar value of cast 'date' in the ISO8601 format.
+Scalar value of cast 'date' in the ISO8601 format. Internally, gretl's
+built-in function "strptime" is used. See the help on that function for more
+details on that.
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
