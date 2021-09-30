@@ -182,8 +182,8 @@ Params = Params + _(date = "1994.2", frequency = "foo", expected = 47)
 Params = Params + _(date = "1994:01", frequency = "monthly", expected = 19940101)
 Params = Params + _(date = "1994:06", frequency = "monthly", expected = 19940601)
 
-function void test_qdate_to_iso8601 (const bundles P)
-    print "Start testing function qdate_to_iso8601()."
+function void test_gdate_to_iso8601 (const bundles P)
+    print "Start testing function gdate_to_iso8601()."
 
     loop foreach i P
         # Given + When
@@ -198,7 +198,7 @@ function void test_qdate_to_iso8601 (const bundles P)
         endif
     endloop
 end function
-test_qdate_to_iso8601(Params)
+test_gdate_to_iso8601(Params)
 
 
 
