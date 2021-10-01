@@ -215,6 +215,66 @@ end function
 test_gdate_to_iso8601(Params)
 
 
+
+nulldata 10 --preserve
+setobs 4 2020:1 --time-series
+bundles Params = null
+Params = Params + _(date = "1994:1", expected = 19940101)
+Params = Params + _(date = "1994:2", expected = 19940401)
+Params = Params + _(date = "1994.2", expected = 19940401)
+Params = Params + _(date = "1994:01", expected = 19940101)
+Params = Params + _(date = "1994:06", expected = 47)
+
+function void test_gdate_to_iso8601_quarterly (const bundles P)
+    print "Start testing function gdate_to_iso8601() without passing frequency and quarterly frequency."
+
+    loop foreach i P
+        # Given + When
+        catch scalar actual = gdate_to_iso8601(P[i].date)
+        scalar err = $error
+
+        # Then
+        if err
+            assert(err == P[i].expected)
+        else
+            assert(actual == P[i].expected)
+        endif
+    endloop
+end function
+test_gdate_to_iso8601_quarterly(Params)
+
+
+nulldata 10 --preserve
+setobs 12 2020:1 --time-series
+eval $pd
+bundles Params = null
+Params = Params + _(date = "1994:1", expected = 19940101)
+Params = Params + _(date = "1994:2", expected = 19940201)
+Params = Params + _(date = "1994.2", expected = 19940201)
+Params = Params + _(date = "1994:01", expected = 19940101)
+Params = Params + _(date = "1994:06", expected = 19940601)
+
+function void test_gdate_to_iso8601_monthly (const bundles P)
+    print "Start testing function gdate_to_iso8601() without passing frequency and monthly frequency."
+
+    loop foreach i P
+        # Given + When
+        catch scalar actual = gdate_to_iso8601(P[i].date)
+        actual
+        scalar err = $error
+
+        # Then
+        if err
+            assert(err == P[i].expected)
+        else
+            assert(actual == P[i].expected)
+        endif
+    endloop
+end function
+test_gdate_to_iso8601_monthly(Params)
+
+
+
 bundles Params = null
 Params = Params + _(date = "1994:1", expected = TRUE)
 Params = Params + _(date = "1994.1", expected = FALSE)

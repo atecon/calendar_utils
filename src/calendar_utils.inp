@@ -105,7 +105,7 @@ function scalar gdate_to_iso8601 (string date "Date string",
     if exists(frequency)
         frequency = strstrip(tolower(frequency))
     else
-        string frequency = get_frequency_label($pd)
+        string frequency = get_frequency_label()
     endif
 
     scalar isok = is_valid_date_delimiter(date)
