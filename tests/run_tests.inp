@@ -173,6 +173,20 @@ end function
 test_check_frequency_ranges(Params)
 
 
+nulldata 10 --preserve
+setobs 4 2020:1 --time-series
+string actual = get_frequency_label()
+assert(actual == "quarterly")
+
+setobs 12 2020:1 --time-series
+string actual = get_frequency_label()
+assert(actual == "monthly")
+
+setobs 1 2020 --time-series
+catch string actual = get_frequency_label()
+assert($error != FALSE)
+
+
 
 bundles Params = null
 Params = Params + _(date = "1994:1", frequency = "quarterly", expected = 19940101)
@@ -201,8 +215,23 @@ end function
 test_gdate_to_iso8601(Params)
 
 
+bundles Params = null
+Params = Params + _(date = "1994:1", expected = TRUE)
+Params = Params + _(date = "1994.1", expected = FALSE)
+Params = Params + _(date = "1994 1", expected = FALSE)
 
+function void test_is_valid_date_delimiter (const bundles P)
+    print "Start testing function is_valid_date_delimiter()."
 
+    loop foreach i P
+        # Given + When
+        scalar actual = is_valid_date_delimiter(P[i].date)
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_is_valid_date_delimiter(Params)
 
 
 quit

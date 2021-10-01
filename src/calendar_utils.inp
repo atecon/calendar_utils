@@ -58,7 +58,8 @@ end function
 
 function scalar date_to_iso8601 (const string date "Date string",
                                  const string date_format "e.g. %Y-%m-%d")
-    /* Transforms a date string to the numeric iso8601 format. */
+    /* Transforms a date string to the numeric ISO8601 format.
+    return: int, Numeric ISO8601 date. */
 
     scalar iso8601 = NA
     scalar seconds = strptime(date, date_format)
@@ -68,9 +69,9 @@ function scalar date_to_iso8601 (const string date "Date string",
 end function
 
 
-function scalar is_valid_gdate_format (const string date)
-    /* code description
-    return: type, description */
+function scalar is_valid_date_delimiter (const string date)
+    /* Check the delimiter of date components.
+    return: int, TRUE if valid, otherwise FALSE. */
 
     if instring(date, ":")
         return TRUE
@@ -80,17 +81,34 @@ function scalar is_valid_gdate_format (const string date)
 end function
 
 
-function scalar gdate_to_iso8601 (string date "Date string",
-                                  string frequency "Frequency of observation")
-    /* This function only supports quarterly date strings as used and accepted by gretl itself;
-    basically only patterns like "1999:3" or "1999.3".
+function string get_frequency_label (void)
+    /* Retrieve label for given periodicity of the underlying time-series or panel dataset.
+    return: string, Frequency label for a given periodicity. */
 
-    return: int, Date string transformed to an integer representing the ISO8601 format. */
+    if $pd == 4
+        return "quarterly"
+    elif $pd == 12
+        return "monthly"
+    else
+        funcerr(sprintf("Periodicity of the dataset (pd = %d) is not supported.", $pd))
+    endif
+end function
+
+
+function scalar gdate_to_iso8601 (string date "Date string",
+                                  string frequency[null] "Frequency of observation")
+    /* This function supports monthly and quarterly date strings as used and accepted by gretl itself; basically only patterns like "1999:3" or "1999.3".
+
+    return: int, Date string transformed to an integer representing the numeric ISO8601 format. */
 
     date = strstrip(strsub(date, ".", ":"))
-    frequency = strstrip(tolower(frequency))
+    if exists(frequency)
+        frequency = strstrip(tolower(frequency))
+    else
+        string frequency = get_frequency_label($pd)
+    endif
 
-    scalar isok = is_valid_gdate_format(date)
+    scalar isok = is_valid_date_delimiter(date)
     errorif(!isok, "Not a recognized gretl date string. Must be of format '%d:%d' or '%d.%d'.")
 
     strings parts = strsplit(date, ":")
@@ -102,8 +120,8 @@ end function
 
 function scalar get_iso_date (const strings parts,
                               const string frequency)
-    /* Compile iso date integer value from parts;
-    return: type, description */
+    /* Compile ISO8601 date integer value from 'parts'.
+    return: int, Numeric date in ISO8601 format. */
 
     first = atof(parts[1])  # atof("01") -> 1
     second = atof(parts[2])
@@ -115,9 +133,9 @@ function scalar get_iso_date (const strings parts,
         out += ((second - 1) * 3 + 1) * 100     # first month in quarter
         out += 1                                # first day in month
     elif frequency == "monthly"
-        out  = first * 10000                    # year
-        out += second * 100                     # first month in quarter
-        out += 1                                # first day in month
+        out  = first * 10000
+        out += second * 100
+        out += 1
     endif
 
     return out
@@ -127,7 +145,7 @@ end function
 function void check_frequency_ranges (const int first,
                                       const int second,
                                       const string frequency)
-    /* Check value ranges. */
+    /* Check value ranges. Error if parameters are out of bounds. */
 
     if frequency == "quarterly"
         errorif(first < 1000 || first > 9999, "Year out of range")
