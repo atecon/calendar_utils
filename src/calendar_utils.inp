@@ -85,9 +85,15 @@ function string get_frequency_label (void)
     /* Retrieve label for given periodicity of the underlying time-series or panel dataset.
     return: string, Frequency label for a given periodicity. */
 
-    if $pd == 4
+    if $datatype == 2
+        pd = $pd
+    elif $datatype == 3
+        pd = $nobs / $pd
+    endif
+
+    if pd == 4
         return "quarterly"
-    elif $pd == 12
+    elif pd == 12
         return "monthly"
     else
         funcerr(sprintf("Periodicity of the dataset (pd = %d) is not supported.", $pd))
