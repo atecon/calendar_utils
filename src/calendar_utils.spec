@@ -1,7 +1,7 @@
 author = Artur Tarassow
 email = atecon@posteo.de
 version = 0.3
-date = 2021-10-06
+date = 2021-10-12
 description = Collection of useful date time related tools
 tags = C88
 min-version = 2020c

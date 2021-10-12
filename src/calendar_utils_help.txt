@@ -25,11 +25,12 @@ gretl's built-in functions strptime() and strftime() are used. See the help on
 these functions for more details.
 
 WARNING: Before gretl 2021e, there was a gretl bug in strptime() when the date
-format passed did not consist of a month and day component, respectively.
-See here:
+format passed did not consist of a month and day component, respectively. This
+bug leads to a wrong date returned. See here:
 https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
-We recommend users not to pass the date e.g. as "1984" but rather in the format
-"1984-01-01" or to wait for the next gretl version after 2021d.
+To ensure correct results the caller should fully specify the input date,
+including month and day of month (and month, day should also be present in the
+format given).
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -42,6 +43,14 @@ date_format:    string, Format of 'dates', e.g. "%Y-%m-%d"
 
 Return:
 Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD).
+
+WARNING: Before gretl 2021e, there was a gretl bug in strptime() when the date
+format passed did not consist of a month and day component, respectively. This
+bug leads to a wrong date returned. See here:
+https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
+To ensure correct results the caller should fully specify the input date,
+including month and day of month (and month, day should also be present in the
+format given).
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
