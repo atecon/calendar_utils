@@ -52,13 +52,13 @@ function void test_date_to_iso8601 (void)
     scalar iso2 = date_to_iso8601(date2, "%Y%m%d")
     scalar iso3 = date_to_iso8601(date3, "%d-%m-%Y")
     scalar iso4 = date_to_iso8601(date4, "%d/%m/%Y")
-    #scalar iso5 = date_to_iso8601("1984", "%Y") # bug in gretl 2020c?
+    scalar iso5 = date_to_iso8601("1984", "%Y") # bug in gretl before 2020e
 
     assert(iso1 == 20200903)
     assert(iso2 == 20200903)
     assert(iso3 == 20200903)
     assert(iso4 == 20200903)
-    #assert(iso5 == 19840101)
+    assert(iso5 == 19840101)
 end function
 test_date_to_iso8601()
 
@@ -186,6 +186,10 @@ setobs 1 2020 --time-series
 catch string actual = get_frequency_label()
 assert($error != FALSE)
 
+setobs 1 1 --cross-section
+catch string actual = get_frequency_label()
+assert($error != FALSE)
+
 
 
 bundles Params = null
@@ -246,7 +250,6 @@ test_gdate_to_iso8601_quarterly(Params)
 
 nulldata 10 --preserve
 setobs 12 2020:1 --time-series
-eval $pd
 bundles Params = null
 Params = Params + _(date = "1994:1", expected = 19940101)
 Params = Params + _(date = "1994:2", expected = 19940201)
@@ -260,7 +263,6 @@ function void test_gdate_to_iso8601_monthly (const bundles P)
     loop foreach i P
         # Given + When
         catch scalar actual = gdate_to_iso8601(P[i].date)
-        actual
         scalar err = $error
 
         # Then

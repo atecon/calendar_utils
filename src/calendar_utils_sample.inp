@@ -44,3 +44,15 @@ stringify(z, dates)
 series y = dates_to_iso8601(z, "%Y-%m-%d")
 print z y -o
 
+
+/* You may also want to use gretl's date format for date strings. */
+eval gdate_to_iso8601("1994:1", "monthly")
+eval gdate_to_iso8601("1994:1", "quarterly")
+eval gdate_to_iso8601("1994.12", "monthly")
+
+/*  If the active dataset is of type panel or time-series, the frequency
+is internally determined. */
+setobs 12 2020:1 --time-series  # monthly frequency
+eval gdate_to_iso8601("1994:1")
+eval gdate_to_iso8601("1994:1")
+eval gdate_to_iso8601("1994.12")
