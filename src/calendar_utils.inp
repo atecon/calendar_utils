@@ -14,6 +14,20 @@ function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric da
 end function
 
 
+function strings iso8601_to_dates_array (const series dates "Num. ISO8601 date")
+    /* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format ("YYYY-MM-DD") is returned. */
+
+    strings ret = array($nobs)
+
+    loop i=1..nelem(ret)
+        ret[i] = numeric_to_extended_iso8601(dates[i])
+    endloop
+
+    return ret
+end function
+
+
+
 function series create_iso8601_series (const scalar init_date "numeric ISO8601")
     /* Return series with dates in ISO8601 format. 'init_date' refers to the initial date for the first observation, and the length of the data set determines the following recursive dates. Works for both time-series and panels. */
 

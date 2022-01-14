@@ -146,6 +146,27 @@ end function
 test_numeric_to_ext_iso8601()
 
 
+nulldata 3 --preserve
+function void test_iso8601_to_dates_array (void)
+    print "Start with iso8601_to_dates_array()."
+
+    # Given
+    series input = {20220101, NA, 20220103}'
+    strings expected = defarray("2022-01-01",\
+                                "",\
+                                "2022-01-03")
+
+    # When
+    strings actual = iso8601_to_dates_array(input)
+
+    # Then
+    loop i=1..nelem(expected)
+        assert(actual[i] == expected[i])
+    endloop
+end function
+test_iso8601_to_dates_array()
+
+
 bundles Params = null
 Params = Params + _(first = 1999, second = 4, frequency = "quarterly", expected_err = FALSE)
 Params = Params + _(first = 999, second = 4, frequency = "quarterly", expected_err = TRUE)

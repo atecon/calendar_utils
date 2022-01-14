@@ -2,8 +2,8 @@
 <gretl-functions>
 <gretl-function-package name="calendar_utils" no-data-ok="true" minver="2020c">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.3</version>
-<date>2021-10-12</date>
+<version>0.4</version>
+<date>2022-01-14</date>
 <description>Collection of useful date time related tools</description>
 <tags>C88</tags>
 <help>
@@ -62,6 +62,20 @@ including month and day of month (and month, day should also be present in the
 format given).
 -----------------------------------------------------------------------
 
+
+-----------------------------------------------------------------------
+Function:       iso8601_to_dates_array(const series dates)
+
+Arguments:
+dates:          series, Series of numeric ISO8601 dates
+
+
+Return:
+String array holding cast values of 'dates' in extended ISO8601 format (default:
+YYYY-MM-DD). Missing values in 'dates' are handled as an empty string in the returned array. This is a kind of reverse function to the dates_to_iso8601() function.
+-----------------------------------------------------------------------
+
+
 -----------------------------------------------------------------------
 Function:       create_iso8601_series(const scalar init_date)
 
@@ -107,6 +121,8 @@ the help on these functions for more details.
 
 Changelog
 ---------
+- v0.4, January 2022:
+    + New iso8601_to_dates_array() function
 - v0.3, October 2021:
     + Improved help text
     + New gdate_to_iso8601() function
@@ -219,6 +235,20 @@ errorif(nelem(parts) != 2, &quot;Invalid date string input. Must be of format '%
 return get_iso_date(parts, frequency)
 </code>
 </gretl-function>
+<gretl-function name="iso8601_to_dates_array" type="strings">
+ <params count="1">
+  <param name="dates" type="series" const="true">
+<description>Num. ISO8601 date</description>
+  </param>
+ </params>
+<code>/* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format (&quot;YYYY-MM-DD&quot;) is returned. */
+strings ret = array($nobs)
+loop i=1..nelem(ret)
+  ret[i] = numeric_to_extended_iso8601(dates[i])
+endloop
+return ret
+</code>
+</gretl-function>
 <gretl-function name="is_valid_date_delimiter" type="scalar" private="1">
  <params count="1">
   <param name="date" type="string" const="true"/>
@@ -309,7 +339,6 @@ scalar iso4 = date_to_iso8601(date4, &quot;%d/%m/%Y&quot;)
 
 print iso1 iso2 iso3 iso4
 
-
 # Cast numeric ISO8601 format back to extended ISO8601 data string
 string date1_cast = numeric_to_extended_iso8601(iso1)
 string date2_cast = numeric_to_extended_iso8601(iso2)
@@ -317,6 +346,19 @@ string date3_cast = numeric_to_extended_iso8601(iso3)
 string date4_cast = numeric_to_extended_iso8601(iso4)
 
 print date1_cast date2_cast date3_cast date4_cast
+
+
+/* Suppose you have series of dates in the numeric ISO8601 format.
+And you want to create an array of strings in the extended ISO8601
+format (&quot;YYYY-MM-DD&quot;) which can be used to for &quot;stringifying&quot; a series,
+too. */
+nulldata 3
+series input = {20220101, NA, 20220103}'
+strings dates = iso8601_to_dates_array(input)
+series x = dates        # Cast as series
+
+print dates
+print input x -o
 
 
 /* Open some data set (here a panel with 2 cross-sectional units) and

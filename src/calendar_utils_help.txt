@@ -53,6 +53,20 @@ including month and day of month (and month, day should also be present in the
 format given).
 -----------------------------------------------------------------------
 
+
+-----------------------------------------------------------------------
+Function:       iso8601_to_dates_array(const series dates)
+
+Arguments:
+dates:          series, Series of numeric ISO8601 dates
+
+
+Return:
+String array holding cast values of 'dates' in extended ISO8601 format (default:
+YYYY-MM-DD). Missing values in 'dates' are handled as an empty string in the returned array. This is a kind of reverse function to the dates_to_iso8601() function.
+-----------------------------------------------------------------------
+
+
 -----------------------------------------------------------------------
 Function:       create_iso8601_series(const scalar init_date)
 
@@ -98,6 +112,8 @@ the help on these functions for more details.
 
 Changelog
 ---------
+- v0.4, January 2022:
+    + New iso8601_to_dates_array() function
 - v0.3, October 2021:
     + Improved help text
     + New gdate_to_iso8601() function
