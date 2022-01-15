@@ -44,7 +44,7 @@ date_format:    string, Format of 'dates', e.g. "%Y-%m-%d"
 Return:
 Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD).
 
-WARNING: Before gretl 2021e, there was a gretl bug in strptime() when the date
+WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when the date
 format passed did not consist of a month and day component, respectively. This
 bug leads to a wrong date returned. See here:
 https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
@@ -55,7 +55,7 @@ format given).
 
 
 -----------------------------------------------------------------------
-Function:       iso8601_to_dates_array(const series dates)
+Function:       iso8601_to_dates(const series dates)
 
 Arguments:
 dates:          series, Series of numeric ISO8601 dates
@@ -113,7 +113,7 @@ the help on these functions for more details.
 Changelog
 ---------
 - v0.4, January 2022:
-    + New iso8601_to_dates_array() function
+    + New iso8601_to_dates() function
 - v0.3, October 2021:
     + Improved help text
     + New gdate_to_iso8601() function

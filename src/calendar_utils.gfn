@@ -53,7 +53,7 @@ date_format:    string, Format of 'dates', e.g. &quot;%Y-%m-%d&quot;
 Return:
 Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD).
 
-WARNING: Before gretl 2021e, there was a gretl bug in strptime() when the date
+WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when the date
 format passed did not consist of a month and day component, respectively. This
 bug leads to a wrong date returned. See here:
 https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
@@ -64,7 +64,7 @@ format given).
 
 
 -----------------------------------------------------------------------
-Function:       iso8601_to_dates_array(const series dates)
+Function:       iso8601_to_dates(const series dates)
 
 Arguments:
 dates:          series, Series of numeric ISO8601 dates
@@ -122,7 +122,7 @@ the help on these functions for more details.
 Changelog
 ---------
 - v0.4, January 2022:
-    + New iso8601_to_dates_array() function
+    + New iso8601_to_dates() function
 - v0.3, October 2021:
     + Improved help text
     + New gdate_to_iso8601() function
@@ -205,7 +205,7 @@ In case of an error, an empty string is returned. */
 string date
 catch string date = isodate(epochday(value), 1)
 if $error
-  sprintf(&quot;Numeric value %d cannot be cast to date string.&quot;, value)
+  sprintf(&quot;ERROR: Numeric value %d cannot be cast to date string.&quot;, value)
   return &quot;&quot;
 endif
 return date
@@ -235,7 +235,7 @@ errorif(nelem(parts) != 2, &quot;Invalid date string input. Must be of format '%
 return get_iso_date(parts, frequency)
 </code>
 </gretl-function>
-<gretl-function name="iso8601_to_dates_array" type="strings">
+<gretl-function name="iso8601_to_dates" type="strings">
  <params count="1">
   <param name="dates" type="series" const="true">
 <description>Num. ISO8601 date</description>
@@ -269,14 +269,14 @@ if $datatype == 2
 elif $datatype == 3
   pd = $nobs / $pd
 else
-  funcerr(&quot;Dataset must be either of type time-series or panel.&quot;)
+  funcerr &quot;Dataset must be either of type time-series or panel.&quot;
 endif
 if pd == 4
   return &quot;quarterly&quot;
 elif pd == 12
   return &quot;monthly&quot;
 else
-  funcerr(sprintf(&quot;Periodicity of the dataset (pd = %d) is not supported.&quot;, $pd))
+  errorif(TRUE, sprintf(&quot;Periodicity of the dataset (pd = %d) is not supported.&quot;, $pd))
 endif
 </code>
 </gretl-function>
@@ -316,7 +316,7 @@ elif frequency == &quot;monthly&quot;
   errorif(first &lt; 1000 || first &gt; 9999, &quot;Year out of range&quot;)
   errorif(second &lt; 1 || second &gt; 12, &quot;Month out of range&quot;)
 else
-  funcerr(sprintf(&quot;Frequency '%s' not supported.&quot;, frequency))
+  errorif(TRUE, sprintf(&quot;Frequency '%s' not supported.&quot;, frequency))
 endif
 </code>
 </gretl-function>
@@ -354,7 +354,7 @@ format (&quot;YYYY-MM-DD&quot;) which can be used to for &quot;stringifying&quot
 too. */
 nulldata 3
 series input = {20220101, NA, 20220103}'
-strings dates = iso8601_to_dates_array(input)
+strings dates = iso8601_to_dates(input)
 series x = dates        # Cast as series
 
 print dates

@@ -147,8 +147,8 @@ test_numeric_to_ext_iso8601()
 
 
 nulldata 3 --preserve
-function void test_iso8601_to_dates_array (void)
-    print "Start with iso8601_to_dates_array()."
+function void test_iso8601_to_dates (void)
+    print "Start with iso8601_to_dates()."
 
     # Given
     series input = {20220101, NA, 20220103}'
@@ -157,14 +157,14 @@ function void test_iso8601_to_dates_array (void)
                                 "2022-01-03")
 
     # When
-    strings actual = iso8601_to_dates_array(input)
+    strings actual = iso8601_to_dates(input)
 
     # Then
     loop i=1..nelem(expected)
         assert(actual[i] == expected[i])
     endloop
 end function
-test_iso8601_to_dates_array()
+test_iso8601_to_dates()
 
 
 bundles Params = null

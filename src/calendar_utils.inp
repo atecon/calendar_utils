@@ -6,7 +6,7 @@ function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric da
 
     catch string date = isodate(epochday(value), 1)
     if $error
-        sprintf("Numeric value %d cannot be cast to date string.", value)
+        sprintf("ERROR: Numeric value %d cannot be cast to date string.", value)
         return ""
     endif
 
@@ -14,7 +14,7 @@ function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric da
 end function
 
 
-function strings iso8601_to_dates_array (const series dates "Num. ISO8601 date")
+function strings iso8601_to_dates (const series dates "Num. ISO8601 date")
     /* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format ("YYYY-MM-DD") is returned. */
 
     strings ret = array($nobs)
@@ -107,7 +107,7 @@ function string get_frequency_label (void)
     elif $datatype == 3
         pd = $nobs / $pd
     else
-        funcerr("Dataset must be either of type time-series or panel.")
+        funcerr "Dataset must be either of type time-series or panel."
     endif
 
     if pd == 4
@@ -115,7 +115,7 @@ function string get_frequency_label (void)
     elif pd == 12
         return "monthly"
     else
-        funcerr(sprintf("Periodicity of the dataset (pd = %d) is not supported.", $pd))
+        errorif(TRUE, sprintf("Periodicity of the dataset (pd = %d) is not supported.", $pd))
     endif
 end function
 
@@ -179,6 +179,6 @@ function void check_frequency_ranges (const int first,
         errorif(first < 1000 || first > 9999, "Year out of range")
         errorif(second < 1 || second > 12, "Month out of range")
     else
-        funcerr(sprintf("Frequency '%s' not supported.", frequency))
+        errorif(TRUE, sprintf("Frequency '%s' not supported.", frequency))
     endif
 end function
