@@ -137,7 +137,8 @@ function scalar gdate_to_iso8601 (string date "Date string",
     errorif(!isok, "Not a recognized gretl date string. Must be of format '%d:%d' or '%d.%d'.")
 
     strings parts = strsplit(date, ":")
-    errorif(nelem(parts) != 2, "Invalid date string input. Must be of format '%d:%d' or '%d.%d'")
+    errorif(nelem(parts) != 2,
+            "Invalid date string input. Must be of format '%d:%d' or '%d.%d'")
 
     return get_iso_date(parts, frequency)
 end function
