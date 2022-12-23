@@ -182,3 +182,48 @@ function void check_frequency_ranges (const int first,
         errorif(TRUE, sprintf("Frequency '%s' not supported.", frequency))
     endif
 end function
+
+
+function scalar date_to_epoch (const string date, string format[null])
+    /* Converts a generic date string (given its format) to epochday.
+    Replaced by gretl's built-in function strpday() implemented after
+    version 20223. */
+
+    string format = exists(format) ? format : "%Y-%m-%d"
+
+    scalar sec = strptime(date, format)
+    scalar iso = atof(strftime(sec, "%Y%m%d"))
+    scalar epoch = epochday(iso)
+
+    return epoch
+end function
+
+
+function series dates_to_epoch (const series dates,
+                                string format[null])
+    /* Converts a string-valued series holding generic date
+    strings (given their format) to an epochday series. If format is
+    omitted, it defaults to ISO 8601 "extended", YYYY-MM-DD (which
+    translates to "%Y-%m-%d" as a strptime format).*/
+
+    string format = exists(format) ? format : "%Y-%m-%d"
+
+    strings dstrs = strvals(dates)
+    scalar ndates = nelem(dstrs)
+    matrix epoch = mshape(NA, 1, ndates)
+
+    loop i = 1..ndates
+        if $version > 20223
+            epoch[i] = strpday(dstr, format)
+        else
+            epoch[i] = date_to_epoch(dstrs[i], format)
+        endif
+    endloop
+
+    series ret = epoch
+
+    return ret
+end function
+
+
+

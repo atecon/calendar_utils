@@ -317,4 +317,63 @@ end function
 test_is_valid_date_delimiter(Params)
 
 
+
+bundles Params = null
+Params = Params + _(date = "2022-12-23", expected = 738512)
+Params = Params + _(date = "2022-12-23", format = "%Y-%m-%d",
+                    expected = 738512)
+
+function void test_date_to_epoch (const bundles P)
+    print "Start testing function date_to_epoch()."
+
+    loop foreach i P
+        # When
+        if inbundle(P[i], "format")
+            scalar actual = date_to_epoch(P[i].date, P[i].format)
+        else
+            scalar actual = date_to_epoch(P[i].date)
+        endif
+
+        # Then
+        assert(actual == P[i].expected)
+    endloop
+end function
+test_date_to_epoch(Params)
+
+
+
+nulldata 3
+strings dates = defarray("2022-12-22", "2022-12-23", "2022-12-24")
+
+bundles Params = null
+Params = Params + _(dates, expected = {738511, 738512, 738513})
+Params = Params + _(dates, expected = {738511, 738512, 738513},
+                    format = "%Y-%m-%d")
+
+function void test_dates_to_epoch (const bundles P)
+    print "Start testing function date_to_espoch()."
+
+    loop foreach i P
+        # Given
+        series y = P[i].dates
+
+        # When
+        if inbundle(P[i], "format")
+            series actual = dates_to_epoch(y, P[i].format)
+        else
+            series actual = dates_to_epoch(y)
+        endif
+
+        # Then
+        loop k=1..$tmax
+            assert(actual[k] == P[i].expected[k])
+        endloop
+    endloop
+end function
+test_dates_to_epoch(Params)
+
+
+printf "\nTests successfully finished.\n\n"
 quit
+
+
