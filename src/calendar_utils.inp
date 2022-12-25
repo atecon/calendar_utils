@@ -182,3 +182,58 @@ function void check_frequency_ranges (const int first,
         errorif(TRUE, sprintf("Frequency '%s' not supported.", frequency))
     endif
 end function
+
+
+function bundle datetime_components (const strings ts,
+                                     string format[null])
+    /* Extract he date and time components of a datetime string, usually in
+    the format "%Y-%m-%d %H:%M". */
+
+    bundle self
+
+    string self.format = exists(format) ? format : "%Y-%m-%d %H:%M"
+
+    strings self.dates = array(nelem(ts))
+    strings self.times = array(nelem(ts))
+    strings self.hours = array(nelem(ts))
+    strings self.minutes = array(nelem(ts))
+
+    if instring(self.format, "%S")
+        strings self.seconds = array(nelem(ts))
+    endif
+
+    print ts
+
+    loop foreach i ts
+        # THIS STEP FAILS when nelem(ts) > 1
+        #        scalar epoch = strptime(ts[i], self.format) # also fails
+        scalar epoch = strptime("$i", self.format)
+
+        string self.dates = strftime(epoch, "%Y-%m-%d")
+        string self.times = strftime(epoch, "%H:%M")
+        scalar self.hours = atof(strftime(epoch, "%H"))
+        scalar self.minutes = atof(strftime(epoch, "%M"))
+
+        if instring(self.format, "%S")
+            scalar self.seconds = atof(strftime(epoch, "%S"))
+        endif
+    endloop
+
+    return self
+end function
+
+/*
+# works
+bundle dt = datetime_components(defarray(DatetimeUTC[2]))
+print dt
+
+# works
+string input = sprintf("%s%s", DatetimeUTC[2], ":03")
+bundle dts = datetime_components(defarray(input), "%Y-%m-%d %H:%M:%S")
+print dts
+
+# Fails when the string array has legth > 1
+strings inputs = strvals(DatetimeUTC)[1:2]
+bundle dts = datetime_components(inputs, "%Y-%m-%d %H:%M:%S")
+print dts
+*/
