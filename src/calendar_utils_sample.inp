@@ -68,3 +68,19 @@ setobs 12 2020:1 --time-series  # monthly frequency
 eval gdate_to_iso8601("1994:1")
 eval gdate_to_iso8601("1994:1")
 eval gdate_to_iso8601("1994.12")
+
+
+# Datetime components
+nulldata 2
+# with seconds
+strings ts = defarray("2022-12-07 00:00:33", "2022-12-13 14:43:12")
+string format = "%Y-%m-%d %H:%M:%S"
+bundle B = datetime_components(ts, format)
+print B
+
+series hours = B.hours
+series minutes = B.minutes
+series dates = B.dates
+series seconds1970 = B.seconds1970
+print dates hours minutes seconds1970 -o
+

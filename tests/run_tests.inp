@@ -322,15 +322,18 @@ bundles Params = null
 Params = Params + _(ts = defarray("2022-12-07 00:00"),
                     hours = {0}, minutes = 0,
                     dates = defarray("2022-12-07"),
-                    times = defarray("00:00"))
+                    times = defarray("00:00"),
+                    seconds1970 = {1670367600})
 Params = Params + _(ts = defarray("2022-12-07 00:10"),
                     hours = {0}, minutes = 10,
                     dates = defarray("2022-12-07"),
-                    times = defarray("00:10"))
+                    times = defarray("00:10"),
+                    seconds1970 = {1670368200})
 Params = Params + _(ts = defarray("2022-12-24 17:05"),
                     hours = {17}, minutes = 5,
                     dates = defarray("2022-12-24"),
-                    times = defarray("17:05"))
+                    times = defarray("17:05"),
+                    seconds1970 = {1671897900})
 
 function void test_datetime_components (const bundles P)
     print "Start testing function datetime_components() single entry."
@@ -342,6 +345,7 @@ function void test_datetime_components (const bundles P)
         matrix actual_minutes = B.minutes
         strings actual_dates = B.dates
         strings actual_times = B.times
+        matrix actual_seconds1970 = B.seconds1970
 
         # Then
         loop foreach k actual_hours
@@ -349,6 +353,7 @@ function void test_datetime_components (const bundles P)
             assert(actual_minutes[k] == P[i].minutes[k])
             assert(actual_dates[k] == P[i].dates[k])
             assert(actual_times[k] == P[i].times[k])
+            assert(actual_seconds1970[k] == P[i].seconds1970[k])
         endloop
     endloop
 end function
@@ -363,14 +368,16 @@ Params = Params + _(ts = defarray("2022-12-07 00:00:33",
                     hours = {0, 14}, minutes = {0, 43},
                     seconds = {33, 12},
                     dates = defarray("2022-12-07", "2022-12-13"),
-                    times = defarray("00:00:33", "14:43:12"))
+                    times = defarray("00:00:33", "14:43:12"),
+                    seconds1970 = {1670367633, 1670938992})
 Params = Params + _(ts = defarray("2022-12-07 00:10:11",
                                   "2022-12-07 00:10:12"),
                     format = "%Y-%m-%d %H:%M:%S",
                     hours = {0, 0}, minutes = {10, 10},
                     seconds = {11, 12},
                     dates = defarray("2022-12-07", "2022-12-07"),
-                    times = defarray("00:10:11", "00:10:12"))
+                    times = defarray("00:10:11", "00:10:12"),
+                    seconds1970 = {1670368211, 1670368212})
 
 function void test_datetime_components (const bundles P)
     print "Start testing function datetime_components() multiple entries."
@@ -382,6 +389,7 @@ function void test_datetime_components (const bundles P)
         matrix actual_minutes = B.minutes
         strings actual_dates = B.dates
         strings actual_times = B.times
+        matrix actual_seconds1970 = B.seconds1970
 
         # Then
         loop foreach k actual_hours
@@ -389,6 +397,7 @@ function void test_datetime_components (const bundles P)
             assert(actual_minutes[k] == P[i].minutes[k])
             assert(actual_dates[k] == P[i].dates[k])
             assert(actual_times[k] == P[i].times[k])
+            assert(actual_seconds1970[k] == P[i].seconds1970[k])
         endloop
     endloop
 end function

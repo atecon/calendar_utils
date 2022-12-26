@@ -2,8 +2,8 @@
 <gretl-functions>
 <gretl-function-package name="calendar_utils" no-data-ok="true" minver="2020c">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.4</version>
-<date>2022-01-14</date>
+<version>0.5</version>
+<date>2022-12-26</date>
 <description>Collection of useful date time related tools</description>
 <tags>C88</tags>
 <help>
@@ -29,9 +29,9 @@ date_format:    string, Format of 'date', e.g. &quot;%Y-%m-%d&quot;
 
 
 Return:
-Scalar value of cast 'date' in the numeric ISO8601 format (YYYYMMDD). Internally,
-gretl's built-in functions strptime() and strftime() are used. See the help on
-these functions for more details.
+Scalar value of cast 'date' in the numeric ISO8601 format (YYYYMMDD).
+Internally, gretl's built-in functions strptime() and strftime() are used. See
+the help on these functions for more details.
 
 WARNING: Before gretl 2021e, there was a gretl bug in strptime() when the date
 format passed did not consist of a month and day component, respectively. This
@@ -53,9 +53,9 @@ date_format:    string, Format of 'dates', e.g. &quot;%Y-%m-%d&quot;
 Return:
 Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD).
 
-WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when the date
-format passed did not consist of a month and day component, respectively. This
-bug leads to a wrong date returned. See here:
+WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when
+the date format passed did not consist of a month and day component,
+respectively. This bug leads to a wrong date returned. See here:
 https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
 To ensure correct results the caller should fully specify the input date,
 including month and day of month (and month, day should also be present in the
@@ -71,8 +71,10 @@ dates:          series, Series of numeric ISO8601 dates
 
 
 Return:
-String array holding cast values of 'dates' in extended ISO8601 format (default:
-YYYY-MM-DD). Missing values in 'dates' are handled as an empty string in the returned array. This is a kind of reverse function to the dates_to_iso8601() function.
+String array holding cast values of 'dates' in extended ISO8601 format
+(default: YYYY-MM-DD). Missing values in 'dates' are handled as an empty
+string in the returned array. This is a kind of reverse function to the
+dates_to_iso8601() function.
 -----------------------------------------------------------------------
 
 
@@ -107,7 +109,8 @@ string in case 'date' has not the right format.
 Function:       gdate_to_iso8601(string date, string frequency[null])
 
 Arguments:
-date:           string, Date string in the gretl format, e.g. '%Y:%m' or '%Y.%m'
+date:           string, Date string in the gretl format, e.g. '%Y:%m' or
+                '%Y.%m'
 frequency:      string, Frequency of the date string, either 'monthly' or
                         'quarterly' (optional); if not specified, the
                         periodicity of the active dataset will be determined.
@@ -119,8 +122,35 @@ Internally, gretl's built-in functions strptime() and strftime() are used. See
 the help on these functions for more details.
 -----------------------------------------------------------------------
 
+
+-----------------------------------------------------------------------
+Function:       datetime_components(const strings ts, string format[null])
+
+Extract the date and time components of a datetime string (timestamp).
+
+Arguments:
+ts:             strings, Datetime string (timestamp)
+format:         string, Format of timestamp; default: &quot;%Y-%m-%d %H:%M&quot;
+
+
+Return:
+Bundle including various components:
+  dates:        strings, Dates in the extended ISO8601 format (%Y-%m-%d)
+  seconds1970:  matrix, Column vector holding the number of seconds since the
+                start of 1970 according to Coordinated Universal Time (see
+                also gretl's strptime() function)
+  times:        strings, Array of time strings in the format %H:%M and ':%s'
+                if 'format' includes seconds.
+  hours:        matrix, Column vector holding hourly values.
+  minutes:      matrix, Column vector holding minute values.
+  seconds:      matrix, Column vector holding the second values if available.
+-----------------------------------------------------------------------
+
+
 Changelog
 ---------
+- v0.5, December 2023:
+    + Add new datetime_components() function
 - v0.4, January 2022:
     + New iso8601_to_dates() function
 - v0.3, October 2021:
@@ -247,6 +277,43 @@ loop i=1..nelem(ret)
   ret[i] = numeric_to_extended_iso8601(dates[i])
 endloop
 return ret
+</code>
+</gretl-function>
+<gretl-function name="datetime_components" type="bundle">
+ <params count="2">
+  <param name="ts" type="strings" const="true">
+<description>Timestamp</description>
+  </param>
+  <param name="format" type="string" optional="true">
+<description>Format timestamp, optional</description>
+  </param>
+ </params>
+<code>/* Extract the date and time components of a datetime string, usually in
+the format &quot;%Y-%m-%d %H:%M&quot;. If a seconds, '%S' are included, these
+are considered, too. */
+bundle self
+string self.format = exists(format) ? format : &quot;%Y-%m-%d %H:%M&quot;
+strings self.dates = array(nelem(ts))
+strings self.times = array(nelem(ts))
+matrix self.hours = mshape(NA, nelem(ts))
+matrix self.minutes = mshape(NA, nelem(ts))
+matrix self.seconds1970 = mshape(NA, nelem(ts))
+if instring(self.format, &quot;%S&quot;)
+  matrix self.seconds = mshape(NA, nelem(ts))
+endif
+loop foreach i ts
+  self.seconds1970[i] = strptime(&quot;$i&quot;, self.format)
+  self.dates[i] = strftime(self.seconds1970[i], &quot;%Y-%m-%d&quot;)
+  self.hours[i] = atof(strftime(self.seconds1970[i], &quot;%H&quot;))
+  self.minutes[i] = atof(strftime(self.seconds1970[i], &quot;%M&quot;))
+  if instring(self.format, &quot;%S&quot;)
+    self.seconds[i] = atof(strftime(self.seconds1970[i], &quot;%S&quot;))
+    self.times[i] = strftime(self.seconds1970[i], &quot;%H:%M:%S&quot;)
+  else
+    self.times[i] = strftime(self.seconds1970[i], &quot;%H:%M&quot;)
+  endif
+endloop
+return self
 </code>
 </gretl-function>
 <gretl-function name="is_valid_date_delimiter" type="scalar" private="1">
@@ -391,6 +458,21 @@ setobs 12 2020:1 --time-series  # monthly frequency
 eval gdate_to_iso8601(&quot;1994:1&quot;)
 eval gdate_to_iso8601(&quot;1994:1&quot;)
 eval gdate_to_iso8601(&quot;1994.12&quot;)
+
+
+# Datetime components
+nulldata 2
+# with seconds
+strings ts = defarray(&quot;2022-12-07 00:00:33&quot;, &quot;2022-12-13 14:43:12&quot;)
+string format = &quot;%Y-%m-%d %H:%M:%S&quot;
+bundle B = datetime_components(ts, format)
+print B
+
+series hours = B.hours
+series minutes = B.minutes
+series dates = B.dates
+series seconds1970 = B.seconds1970
+print dates hours minutes seconds1970 -o
 </sample-script>
 </gretl-function-package>
 </gretl-functions>

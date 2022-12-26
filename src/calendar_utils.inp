@@ -186,7 +186,7 @@ end function
 
 function bundle datetime_components (const strings ts "Timestamp",
                                      string format[null] "Format timestamp, optional")
-    /* Extract he date and time components of a datetime string, usually in
+    /* Extract the date and time components of a datetime string, usually in
     the format "%Y-%m-%d %H:%M". If a seconds, '%S' are included, these
     are considered, too. */
 
@@ -198,23 +198,23 @@ function bundle datetime_components (const strings ts "Timestamp",
     strings self.times = array(nelem(ts))
     matrix self.hours = mshape(NA, nelem(ts))
     matrix self.minutes = mshape(NA, nelem(ts))
-
+    matrix self.seconds1970 = mshape(NA, nelem(ts))
     if instring(self.format, "%S")
         matrix self.seconds = mshape(NA, nelem(ts))
     endif
 
     loop foreach i ts
-        scalar epoch = strptime("$i", self.format)
+        self.seconds1970[i] = strptime("$i", self.format)
 
-        self.dates[i] = strftime(epoch, "%Y-%m-%d")
-        self.hours[i] = atof(strftime(epoch, "%H"))
-        self.minutes[i] = atof(strftime(epoch, "%M"))
+        self.dates[i] = strftime(self.seconds1970[i], "%Y-%m-%d")
+        self.hours[i] = atof(strftime(self.seconds1970[i], "%H"))
+        self.minutes[i] = atof(strftime(self.seconds1970[i], "%M"))
 
         if instring(self.format, "%S")
-            self.seconds[i] = atof(strftime(epoch, "%S"))
-            self.times[i] = strftime(epoch, "%H:%M:%S")
+            self.seconds[i] = atof(strftime(self.seconds1970[i], "%S"))
+            self.times[i] = strftime(self.seconds1970[i], "%H:%M:%S")
         else
-            self.times[i] = strftime(epoch, "%H:%M")
+            self.times[i] = strftime(self.seconds1970[i], "%H:%M")
         endif
     endloop
 
