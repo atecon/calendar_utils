@@ -184,10 +184,11 @@ function void check_frequency_ranges (const int first,
 end function
 
 
-function bundle datetime_components (const strings ts,
-                                     string format[null])
+function bundle datetime_components (const strings ts "Timestamp",
+                                     string format[null] "Format timestamp, optional")
     /* Extract he date and time components of a datetime string, usually in
-    the format "%Y-%m-%d %H:%M". */
+    the format "%Y-%m-%d %H:%M". If a seconds, '%S' are included, these
+    are considered, too. */
 
     bundle self
 
@@ -195,45 +196,27 @@ function bundle datetime_components (const strings ts,
 
     strings self.dates = array(nelem(ts))
     strings self.times = array(nelem(ts))
-    strings self.hours = array(nelem(ts))
-    strings self.minutes = array(nelem(ts))
+    matrix self.hours = mshape(NA, nelem(ts))
+    matrix self.minutes = mshape(NA, nelem(ts))
 
     if instring(self.format, "%S")
-        strings self.seconds = array(nelem(ts))
+        matrix self.seconds = mshape(NA, nelem(ts))
     endif
 
-    print ts
-
     loop foreach i ts
-        # THIS STEP FAILS when nelem(ts) > 1
-        #        scalar epoch = strptime(ts[i], self.format) # also fails
         scalar epoch = strptime("$i", self.format)
 
-        string self.dates = strftime(epoch, "%Y-%m-%d")
-        string self.times = strftime(epoch, "%H:%M")
-        scalar self.hours = atof(strftime(epoch, "%H"))
-        scalar self.minutes = atof(strftime(epoch, "%M"))
+        self.dates[i] = strftime(epoch, "%Y-%m-%d")
+        self.hours[i] = atof(strftime(epoch, "%H"))
+        self.minutes[i] = atof(strftime(epoch, "%M"))
 
         if instring(self.format, "%S")
-            scalar self.seconds = atof(strftime(epoch, "%S"))
+            self.seconds[i] = atof(strftime(epoch, "%S"))
+            self.times[i] = strftime(epoch, "%H:%M:%S")
+        else
+            self.times[i] = strftime(epoch, "%H:%M")
         endif
     endloop
 
     return self
 end function
-
-/*
-# works
-bundle dt = datetime_components(defarray(DatetimeUTC[2]))
-print dt
-
-# works
-string input = sprintf("%s%s", DatetimeUTC[2], ":03")
-bundle dts = datetime_components(defarray(input), "%Y-%m-%d %H:%M:%S")
-print dts
-
-# Fails when the string array has legth > 1
-strings inputs = strvals(DatetimeUTC)[1:2]
-bundle dts = datetime_components(inputs, "%Y-%m-%d %H:%M:%S")
-print dts
-*/

@@ -317,4 +317,84 @@ end function
 test_is_valid_date_delimiter(Params)
 
 
+
+bundles Params = null
+Params = Params + _(ts = defarray("2022-12-07 00:00"),
+                    hours = {0}, minutes = 0,
+                    dates = defarray("2022-12-07"),
+                    times = defarray("00:00"))
+Params = Params + _(ts = defarray("2022-12-07 00:10"),
+                    hours = {0}, minutes = 10,
+                    dates = defarray("2022-12-07"),
+                    times = defarray("00:10"))
+Params = Params + _(ts = defarray("2022-12-24 17:05"),
+                    hours = {17}, minutes = 5,
+                    dates = defarray("2022-12-24"),
+                    times = defarray("17:05"))
+
+function void test_datetime_components (const bundles P)
+    print "Start testing function datetime_components() single entry."
+
+    loop foreach i P
+        # Given + When
+        bundle B = datetime_components(P[i].ts)
+        matrix actual_hours = B.hours
+        matrix actual_minutes = B.minutes
+        strings actual_dates = B.dates
+        strings actual_times = B.times
+
+        # Then
+        loop foreach k actual_hours
+            assert(actual_hours[k] == P[i].hours[k])
+            assert(actual_minutes[k] == P[i].minutes[k])
+            assert(actual_dates[k] == P[i].dates[k])
+            assert(actual_times[k] == P[i].times[k])
+        endloop
+    endloop
+end function
+test_datetime_components(Params)
+
+
+
+bundles Params = null
+Params = Params + _(ts = defarray("2022-12-07 00:00:33",
+                                  "2022-12-13 14:43:12"),
+                    format = "%Y-%m-%d %H:%M:%S",
+                    hours = {0, 14}, minutes = {0, 43},
+                    seconds = {33, 12},
+                    dates = defarray("2022-12-07", "2022-12-13"),
+                    times = defarray("00:00:33", "14:43:12"))
+Params = Params + _(ts = defarray("2022-12-07 00:10:11",
+                                  "2022-12-07 00:10:12"),
+                    format = "%Y-%m-%d %H:%M:%S",
+                    hours = {0, 0}, minutes = {10, 10},
+                    seconds = {11, 12},
+                    dates = defarray("2022-12-07", "2022-12-07"),
+                    times = defarray("00:10:11", "00:10:12"))
+
+function void test_datetime_components (const bundles P)
+    print "Start testing function datetime_components() multiple entries."
+
+    loop foreach i P
+        # Given + When
+        bundle B = datetime_components(P[i].ts, P[i].format)
+        matrix actual_hours = B.hours
+        matrix actual_minutes = B.minutes
+        strings actual_dates = B.dates
+        strings actual_times = B.times
+
+        # Then
+        loop foreach k actual_hours
+            assert(actual_hours[k] == P[i].hours[k])
+            assert(actual_minutes[k] == P[i].minutes[k])
+            assert(actual_dates[k] == P[i].dates[k])
+            assert(actual_times[k] == P[i].times[k])
+        endloop
+    endloop
+end function
+test_datetime_components(Params)
+
+
+
+
 quit
