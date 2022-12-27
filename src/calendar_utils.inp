@@ -29,7 +29,10 @@ end function
 
 function series dates_to_iso8601 (const series dates "Date string",
                                   const string date_format "e.g. %Y-%m-%d")
-    /* Transforms a string-valued dates series to the numeric iso8601 format. Works for panel, time-series and cross-sectional data. */
+    /* Transforms a string-valued dates series to the numeric iso8601 format. Works for panel, time-series and cross-sectional data.
+    return: Series holding cast values of 'dates' in the numeric ISO8601
+    format (YYYYMMDD) in case of no error at the i-th entry. In case of an
+    error at the i-th entry, return zero (FALSE).*/
 
     series iso8601 = NA
     smpl dates --no-missing

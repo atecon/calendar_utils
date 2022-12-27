@@ -147,7 +147,9 @@ Changelog
 - v0.5, December 2023:
     + Add new datetime_components() function
     + Remove function create_iso8601_series() and add a hint on how to mimic
-      the function using gretl commands
+      the function using gretl commands.
+    + Both dates_to_iso8601() and date_to_iso8601() catch an eventual error
+      and return zero in this error case.
 - v0.4, January 2022:
     + New iso8601_to_dates() function
 - v0.3, October 2021:
