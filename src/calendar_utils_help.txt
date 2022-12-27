@@ -20,7 +20,8 @@ date_format:    string, Format of 'date', e.g. "%Y-%m-%d"
 
 
 Return:
-Scalar value of cast 'date' in the numeric ISO8601 format (YYYYMMDD).
+Scalar value of cast 'date' in the numeric ISO8601 format (YYYYMMDD) in case of
+no error. In case of an error, return zero (FALSE).
 Internally, gretl's built-in functions strptime() and strftime() are used. See
 the help on these functions for more details.
 
@@ -42,7 +43,9 @@ date_format:    string, Format of 'dates', e.g. "%Y-%m-%d"
 
 
 Return:
-Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD).
+Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD)
+in case of no error at the i-th entry. In case of an error at the i-th entry,
+return zero (FALSE).
 
 WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when
 the date format passed did not consist of a month and day component,
@@ -92,7 +95,8 @@ date:           int, Numeric date in ISO8601 format (YYYYMMDD)
 
 Return:
 Date string in the extended ISO8601 date format (YYYY-MM-DD). Return empty
-string in case 'date' has not the right format.
+string at the i-th position in case the i-th 'dates' entry has not the right
+format.
 -----------------------------------------------------------------------
 
 

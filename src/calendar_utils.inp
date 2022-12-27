@@ -2,9 +2,6 @@ function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric da
     /* Cast numeric ISO8601 date (YYYYMMDD) to extended ISO8601 date string.
     In case of an error, an empty string is returned. */
 
-    string date
-
-    # TODO: Shall we do a hard stop here or still catch the error?
     catch string date = isodate(epochday(value), 1)
     if $error
         sprintf("ERROR: Numeric value %d cannot be cast to date string.", value)
@@ -16,7 +13,9 @@ end function
 
 
 function strings iso8601_to_dates (const series dates "Num. ISO8601 date")
-    /* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format ("YYYY-MM-DD") is returned. */
+    /* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format ("YYYY-MM-DD") is returned.
+    Return empty string at the i-th position in case the i-th 'dates' entry
+    has not the right format. */
 
     strings ret = array($nobs)
 
@@ -48,10 +47,14 @@ end function
 function scalar date_to_iso8601 (const string date "Date string",
                                  const string date_format "e.g. %Y-%m-%d")
     /* Transforms a date string to the numeric ISO8601 format.
-    return: int, Numeric ISO8601 date. */
+    return: int, Numeric ISO8601 date if no error, otherwise zero (FALSE). */
 
     scalar iso8601 = NA
-    scalar seconds = strptime(date, date_format)
+    catch scalar seconds = strptime(date, date_format)
+    if $error
+        printf "\nERROR: Either no valid date string or date format were passed.\n"
+        return FALSE
+    endif
     iso8601 = atof(strftime(seconds, "%Y%m%d"))
 
     return iso8601
@@ -120,7 +123,7 @@ function scalar get_iso_date (const strings parts,
     /* Compile ISO8601 date integer value from 'parts'.
     return: int, Numeric date in ISO8601 format. */
 
-    first = atof(parts[1])  # atof("01") -> 1
+    first = atof(parts[1])  # casts atof("01") -> 1
     second = atof(parts[2])
 
     check_frequency_ranges(first, second, frequency)
