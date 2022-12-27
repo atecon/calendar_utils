@@ -4,6 +4,7 @@ function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric da
 
     string date
 
+    # TODO: Shall we do a hard stop here or still catch the error?
     catch string date = isodate(epochday(value), 1)
     if $error
         sprintf("ERROR: Numeric value %d cannot be cast to date string.", value)
@@ -24,32 +25,6 @@ function strings iso8601_to_dates (const series dates "Num. ISO8601 date")
     endloop
 
     return ret
-end function
-
-
-
-function series create_iso8601_series (const scalar init_date "numeric ISO8601")
-    /* Return series with dates in ISO8601 format. 'init_date' refers to the initial date for the first observation, and the length of the data set determines the following recursive dates. Works for both time-series and panels. */
-
-    if $datatype == 3
-        scalar N = $nobs/$pd
-        scalar T = $pd
-    elif $datatype == 2
-        return $obsdate
-    else
-        funcerr "Data must be either of panel or time-series type."
-    endif
-
-    string date_string = sprintf("%d", init_date)
-    errorif(strlen(date_string) != 8, "Numeric ISO8601 date must comprise eight digits.")
-
-    scalar init_epoch_date = epochday(init_date)
-    scalar last_epoch_date = init_epoch_date + T - 1
-    matrix epoch_days_values = seq(init_epoch_date, last_epoch_date)'
-    series epoch_days = vec(ones(T, N) .* epoch_days_values)
-    series iso_date = isodate(epoch_days, 1)
-
-    return iso_date
 end function
 
 
@@ -74,9 +49,6 @@ function scalar date_to_iso8601 (const string date "Date string",
                                  const string date_format "e.g. %Y-%m-%d")
     /* Transforms a date string to the numeric ISO8601 format.
     return: int, Numeric ISO8601 date. */
-
-    print date
-    print date_format
 
     scalar iso8601 = NA
     scalar seconds = strptime(date, date_format)
@@ -105,7 +77,7 @@ function string get_frequency_label (void)
     if $datatype == 2
         pd = $pd
     elif $datatype == 3
-        pd = $nobs / $pd
+        pd = $nobs / $pd  # TODO: not sure that works with non-daily data
     else
         funcerr "Dataset must be either of type time-series or panel."
     endif

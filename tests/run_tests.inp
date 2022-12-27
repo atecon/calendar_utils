@@ -5,40 +5,6 @@ clear
 include "./src/calendar_utils.inp" --force
 
 
-nulldata 6
-series y = normal()
-scalar T = 3
-setobs T 1:1 --stacked-time-series
-function void test_create_iso8601_series_pl (void)
-    print "Start with create_iso8601_series() for panel."
-
-    series x = create_iso8601_series(20200101)
-
-    assert(x[1] == 20200101)
-    assert(x[2] == 20200102)
-    assert(x[3] == 20200103)
-    assert(x[4] == 20200101)
-    assert(x[5] == 20200102)
-    assert(x[6] == 20200103)
-end function
-test_create_iso8601_series_pl()
-
-
-nulldata 3
-series y = normal()
-setobs 7 2020-01-01 --time-series
-function void test_create_iso8601_series_ts (void)
-    print "Start with create_iso8601_series() for timeseries."
-
-    series x = create_iso8601_series(20200101)
-
-    assert(x[1] == 20200101)
-    assert(x[2] == 20200102)
-    assert(x[3] == 20200103)
-end function
-test_create_iso8601_series_ts()
-
-
 function void test_date_to_iso8601 (void)
     print "Start testing date_to_iso8601()."
 

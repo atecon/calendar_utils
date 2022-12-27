@@ -72,14 +72,14 @@ dates_to_iso8601() function.
 -----------------------------------------------------------------------
 Function:       create_iso8601_series(const scalar init_date)
 
-Arguments:
-init_date:      int, Initial date in ISO8601 format
+REMOVED SINCE VERSION 0.5.
 
-
-Return:
-Series holding a sequence of dates in the numeric ISO8601 format (YYYYMMDD)
-starting with 'init_date'. The last date of the series created depends on the
-length of the data set.
+Use gretl's built-in facility instead. To be concrete, set the dataset
+structure by means of the 'setobs' command. For a daily time-series by:
+  <setobs 7 2020-01-01 --time-series>
+and for a panel dataset with daily frequency by:
+    <setobs 7 2020-01-01 --panel-time>
+The numeric ISO8601 series can be obtained by the accessor '$obsdate'.
 -----------------------------------------------------------------------
 
 
@@ -142,6 +142,8 @@ Changelog
 ---------
 - v0.5, December 2023:
     + Add new datetime_components() function
+    + Remove function create_iso8601_series() and add a hint on how to mimic
+      the function using gretl commands
 - v0.4, January 2022:
     + New iso8601_to_dates() function
 - v0.3, October 2021:
