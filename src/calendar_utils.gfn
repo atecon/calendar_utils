@@ -29,7 +29,8 @@ date_format:    string, Format of 'date', e.g. &quot;%Y-%m-%d&quot;
 
 
 Return:
-Scalar value of cast 'date' in the numeric ISO8601 format (YYYYMMDD).
+Scalar value of cast 'date' in the numeric ISO8601 format (YYYYMMDD) in case of
+no error. In case of an error, return zero (FALSE).
 Internally, gretl's built-in functions strptime() and strftime() are used. See
 the help on these functions for more details.
 
@@ -51,7 +52,9 @@ date_format:    string, Format of 'dates', e.g. &quot;%Y-%m-%d&quot;
 
 
 Return:
-Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD).
+Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD)
+in case of no error at the i-th entry. In case of an error at the i-th entry,
+return zero (FALSE).
 
 WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when
 the date format passed did not consist of a month and day component,
@@ -81,14 +84,14 @@ dates_to_iso8601() function.
 -----------------------------------------------------------------------
 Function:       create_iso8601_series(const scalar init_date)
 
-Arguments:
-init_date:      int, Initial date in ISO8601 format
+REMOVED SINCE VERSION 0.5.
 
-
-Return:
-Series holding a sequence of dates in the numeric ISO8601 format (YYYYMMDD)
-starting with 'init_date'. The last date of the series created depends on the
-length of the data set.
+Use gretl's built-in facility instead. To be concrete, set the dataset
+structure by means of the 'setobs' command. For a daily time-series by:
+  &lt;setobs 7 2020-01-01 --time-series&gt;
+and for a panel dataset with daily frequency by:
+    &lt;setobs 7 2020-01-01 --panel-time&gt;
+The numeric ISO8601 series can be obtained by the accessor '$obsdate'.
 -----------------------------------------------------------------------
 
 
@@ -101,7 +104,8 @@ date:           int, Numeric date in ISO8601 format (YYYYMMDD)
 
 Return:
 Date string in the extended ISO8601 date format (YYYY-MM-DD). Return empty
-string in case 'date' has not the right format.
+string at the i-th position in case the i-th 'dates' entry has not the right
+format.
 -----------------------------------------------------------------------
 
 
@@ -151,6 +155,10 @@ Changelog
 ---------
 - v0.5, December 2023:
     + Add new datetime_components() function
+    + Remove function create_iso8601_series() and add a hint on how to mimic
+      the function using gretl commands.
+    + Both dates_to_iso8601() and date_to_iso8601() catch an eventual error
+      and return zero in this error case.
 - v0.4, January 2022:
     + New iso8601_to_dates() function
 - v0.3, October 2021:
@@ -161,31 +169,6 @@ Changelog
 - v0.1, October 2020:
     + Initial release
 </help>
-<gretl-function name="create_iso8601_series" type="series">
- <params count="1">
-  <param name="init_date" type="scalar" const="true">
-<description>numeric ISO8601</description>
-  </param>
- </params>
-<code>/* Return series with dates in ISO8601 format. 'init_date' refers to the initial date for the first observation, and the length of the data set determines the following recursive dates. Works for both time-series and panels. */
-if $datatype == 3
-  scalar N = $nobs/$pd
-  scalar T = $pd
-elif $datatype == 2
-  return $obsdate
-else
-  funcerr &quot;Data must be either of panel or time-series type.&quot;
-endif
-string date_string = sprintf(&quot;%d&quot;, init_date)
-errorif(strlen(date_string) != 8, &quot;Numeric ISO8601 date must comprise eight digits.&quot;)
-scalar init_epoch_date = epochday(init_date)
-scalar last_epoch_date = init_epoch_date + T - 1
-matrix epoch_days_values = seq(init_epoch_date, last_epoch_date)'
-series epoch_days = vec(ones(T, N) .* epoch_days_values)
-series iso_date = isodate(epoch_days, 1)
-return iso_date
-</code>
-</gretl-function>
 <gretl-function name="dates_to_iso8601" type="series">
  <params count="2">
   <param name="dates" type="series" const="true">
@@ -195,7 +178,10 @@ return iso_date
 <description>e.g. %Y-%m-%d</description>
   </param>
  </params>
-<code>/* Transforms a string-valued dates series to the numeric iso8601 format. Works for panel, time-series and cross-sectional data. */
+<code>/* Transforms a string-valued dates series to the numeric iso8601 format. Works for panel, time-series and cross-sectional data.
+return: Series holding cast values of 'dates' in the numeric ISO8601
+format (YYYYMMDD) in case of no error at the i-th entry. In case of an
+error at the i-th entry, return zero (FALSE).*/
 series iso8601 = NA
 smpl dates --no-missing
 loop i = 1..nobs(dates)
@@ -215,11 +201,13 @@ return iso8601
   </param>
  </params>
 <code>/* Transforms a date string to the numeric ISO8601 format.
-return: int, Numeric ISO8601 date. */
-print date
-print date_format
+return: int, Numeric ISO8601 date if no error, otherwise zero (FALSE). */
 scalar iso8601 = NA
-scalar seconds = strptime(date, date_format)
+catch scalar seconds = strptime(date, date_format)
+if $error
+  printf &quot;\nERROR: Either no valid date string or date format were passed.\n&quot;
+  return FALSE
+endif
 iso8601 = atof(strftime(seconds, &quot;%Y%m%d&quot;))
 return iso8601
 </code>
@@ -232,7 +220,6 @@ return iso8601
  </params>
 <code>/* Cast numeric ISO8601 date (YYYYMMDD) to extended ISO8601 date string.
 In case of an error, an empty string is returned. */
-string date
 catch string date = isodate(epochday(value), 1)
 if $error
   sprintf(&quot;ERROR: Numeric value %d cannot be cast to date string.&quot;, value)
@@ -271,7 +258,9 @@ return get_iso_date(parts, frequency)
 <description>Num. ISO8601 date</description>
   </param>
  </params>
-<code>/* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format (&quot;YYYY-MM-DD&quot;) is returned. */
+<code>/* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format (&quot;YYYY-MM-DD&quot;) is returned.
+Return empty string at the i-th position in case the i-th 'dates' entry
+has not the right format. */
 strings ret = array($nobs)
 loop i=1..nelem(ret)
   ret[i] = numeric_to_extended_iso8601(dates[i])
@@ -334,7 +323,7 @@ return: string, Frequency label for a given periodicity. */
 if $datatype == 2
   pd = $pd
 elif $datatype == 3
-  pd = $nobs / $pd
+  pd = $nobs / $pd  # TODO: not sure that works with non-daily data
 else
   funcerr &quot;Dataset must be either of type time-series or panel.&quot;
 endif
@@ -354,7 +343,7 @@ endif
  </params>
 <code>/* Compile ISO8601 date integer value from 'parts'.
 return: int, Numeric date in ISO8601 format. */
-first = atof(parts[1])  # atof(&quot;01&quot;) -&gt; 1
+first = atof(parts[1])  # casts atof(&quot;01&quot;) -&gt; 1
 second = atof(parts[2])
 check_frequency_ranges(first, second, frequency)
 if frequency == &quot;quarterly&quot;                 # construct the ISO output
@@ -428,17 +417,9 @@ print dates
 print input x -o
 
 
-/* Open some data set (here a panel with 2 cross-sectional units) and
-create a series (sequence) of ISO8601 dates given some initial date. */
-nulldata 6
-scalar T = 3
-setobs T 1:1 --stacked-time-series
-series x = create_iso8601_series(20200101)
-print x -o
-
-
 /* Now assume you have a date string series but you want to cast these
 string dates to numerical ISO8601 format. */
+nulldata 6
 series z = seq(1, 3)' | seq(1, 3)'
 strings dates = defarray(&quot;2020-09-01&quot;, &quot;2020-09-02&quot;, &quot;2020-09-03&quot;)
 stringify(z, dates)
