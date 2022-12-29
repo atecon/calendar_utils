@@ -70,9 +70,9 @@ string format = "%Y-%m-%d %H:%M:%S"
 bundle B = datetime_components(ts, format)
 print B
 
-series hours = B.hours
-series minutes = B.minutes
-series dates = B.dates
-series seconds1970 = B.seconds1970
-print dates hours minutes seconds1970 -o
+series hour = B.hour
+series minute = B.minute
+series date = B.date
+series second1970 = B.second1970
+print date hour minute second1970 -o
 

@@ -3,7 +3,7 @@
 <gretl-function-package name="calendar_utils" no-data-ok="true" minver="2020c">
 <author email="atecon@posteo.de">Artur Tarassow</author>
 <version>0.5</version>
-<date>2022-12-26</date>
+<date>2022-12-29</date>
 <description>Collection of useful date time related tools</description>
 <tags>C88</tags>
 <help>
@@ -139,24 +139,29 @@ format:         string, Format of timestamp; default: &quot;%Y-%m-%d %H:%M&quot;
 
 Return:
 Bundle including various components:
-  dates:        strings, Dates in the extended ISO8601 format (%Y-%m-%d)
-  seconds1970:  matrix, Column vector holding the number of seconds since the
+  date:         strings, Dates in the extended ISO8601 format (%Y-%m-%d)
+  second1970:   matrix, Column vector holding the number of seconds since the
                 start of 1970 according to Coordinated Universal Time (see
                 also gretl's strptime() function)
-  times:        strings, Array of time strings in the format %H:%M and ':%s'
+  time:         strings, Array of time strings in the format %H:%M and ':%s'
                 if 'format' includes seconds.
-  hours:        matrix, Column vector holding hourly values.
-  minutes:      matrix, Column vector holding minute values.
-  seconds:      matrix, Column vector holding the second values if available.
+  year:         matrix, Column vector holding the year values.
+  month:        matrix, Column vector holding the month values.
+  day:          matrix, Column vector holding the day of month values.
+  hour:         matrix, Column vector holding hourly values.
+  minute:       matrix, Column vector holding minute values.
+  second:       matrix, Column vector holding the second values if available.
 -----------------------------------------------------------------------
 
 
 Changelog
 ---------
 - v0.5, December 2023:
-    + Add new datetime_components() function
+    + Add new datetime_components() function.
     + Remove function create_iso8601_series() and add a hint on how to mimic
       the function using gretl commands.
+    + Improve help text on how errors are handled for the iso8601_to_dates()
+      function.
     + Both dates_to_iso8601() and date_to_iso8601() catch an eventual error
       and return zero in this error case.
 - v0.4, January 2022:
@@ -282,24 +287,30 @@ the format &quot;%Y-%m-%d %H:%M&quot;. If a seconds, '%S' are included, these
 are considered, too. */
 bundle self
 string self.format = exists(format) ? format : &quot;%Y-%m-%d %H:%M&quot;
-strings self.dates = array(nelem(ts))
-strings self.times = array(nelem(ts))
-matrix self.hours = mshape(NA, nelem(ts))
-matrix self.minutes = mshape(NA, nelem(ts))
-matrix self.seconds1970 = mshape(NA, nelem(ts))
+strings self.date = array(nelem(ts))
+matrix self.year = mshape(NA, nelem(ts))
+matrix self.month = mshape(NA, nelem(ts))
+matrix self.day = mshape(NA, nelem(ts))
+strings self.time = array(nelem(ts))
+matrix self.hour = mshape(NA, nelem(ts))
+matrix self.minute = mshape(NA, nelem(ts))
+matrix self.second1970 = mshape(NA, nelem(ts))
 if instring(self.format, &quot;%S&quot;)
-  matrix self.seconds = mshape(NA, nelem(ts))
+  matrix self.second = mshape(NA, nelem(ts))
 endif
 loop foreach i ts
-  self.seconds1970[i] = strptime(&quot;$i&quot;, self.format)
-  self.dates[i] = strftime(self.seconds1970[i], &quot;%Y-%m-%d&quot;)
-  self.hours[i] = atof(strftime(self.seconds1970[i], &quot;%H&quot;))
-  self.minutes[i] = atof(strftime(self.seconds1970[i], &quot;%M&quot;))
+  self.second1970[i] = strptime(&quot;$i&quot;, self.format)
+  self.date[i] = strftime(self.second1970[i], &quot;%Y-%m-%d&quot;)
+  self.year[i] = atof(strftime(self.second1970[i], &quot;%Y&quot;))
+  self.month[i] = atof(strftime(self.second1970[i], &quot;%m&quot;))
+  self.day[i] = atof(strftime(self.second1970[i], &quot;%d&quot;))
+  self.hour[i] = atof(strftime(self.second1970[i], &quot;%H&quot;))
+  self.minute[i] = atof(strftime(self.second1970[i], &quot;%M&quot;))
   if instring(self.format, &quot;%S&quot;)
-    self.seconds[i] = atof(strftime(self.seconds1970[i], &quot;%S&quot;))
-    self.times[i] = strftime(self.seconds1970[i], &quot;%H:%M:%S&quot;)
+    self.second[i] = atof(strftime(self.second1970[i], &quot;%S&quot;))
+    self.time[i] = strftime(self.second1970[i], &quot;%H:%M:%S&quot;)
   else
-    self.times[i] = strftime(self.seconds1970[i], &quot;%H:%M&quot;)
+    self.time[i] = strftime(self.second1970[i], &quot;%H:%M&quot;)
   endif
 endloop
 return self
@@ -449,11 +460,11 @@ string format = &quot;%Y-%m-%d %H:%M:%S&quot;
 bundle B = datetime_components(ts, format)
 print B
 
-series hours = B.hours
-series minutes = B.minutes
-series dates = B.dates
-series seconds1970 = B.seconds1970
-print dates hours minutes seconds1970 -o
+series hour = B.hour
+series minute = B.minute
+series date = B.date
+series second1970 = B.second1970
+print date hour minute second1970 -o
 </sample-script>
 </gretl-function-package>
 </gretl-functions>

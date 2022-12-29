@@ -172,27 +172,33 @@ function bundle datetime_components (const strings ts "Timestamp",
 
     string self.format = exists(format) ? format : "%Y-%m-%d %H:%M"
 
-    strings self.dates = array(nelem(ts))
-    strings self.times = array(nelem(ts))
-    matrix self.hours = mshape(NA, nelem(ts))
-    matrix self.minutes = mshape(NA, nelem(ts))
-    matrix self.seconds1970 = mshape(NA, nelem(ts))
+    strings self.date = array(nelem(ts))
+    matrix self.year = mshape(NA, nelem(ts))
+    matrix self.month = mshape(NA, nelem(ts))
+    matrix self.day = mshape(NA, nelem(ts))
+    strings self.time = array(nelem(ts))
+    matrix self.hour = mshape(NA, nelem(ts))
+    matrix self.minute = mshape(NA, nelem(ts))
+    matrix self.second1970 = mshape(NA, nelem(ts))
     if instring(self.format, "%S")
-        matrix self.seconds = mshape(NA, nelem(ts))
+        matrix self.second = mshape(NA, nelem(ts))
     endif
 
     loop foreach i ts
-        self.seconds1970[i] = strptime("$i", self.format)
+        self.second1970[i] = strptime("$i", self.format)
 
-        self.dates[i] = strftime(self.seconds1970[i], "%Y-%m-%d")
-        self.hours[i] = atof(strftime(self.seconds1970[i], "%H"))
-        self.minutes[i] = atof(strftime(self.seconds1970[i], "%M"))
+        self.date[i] = strftime(self.second1970[i], "%Y-%m-%d")
+        self.year[i] = atof(strftime(self.second1970[i], "%Y"))
+        self.month[i] = atof(strftime(self.second1970[i], "%m"))
+        self.day[i] = atof(strftime(self.second1970[i], "%d"))
+        self.hour[i] = atof(strftime(self.second1970[i], "%H"))
+        self.minute[i] = atof(strftime(self.second1970[i], "%M"))
 
         if instring(self.format, "%S")
-            self.seconds[i] = atof(strftime(self.seconds1970[i], "%S"))
-            self.times[i] = strftime(self.seconds1970[i], "%H:%M:%S")
+            self.second[i] = atof(strftime(self.second1970[i], "%S"))
+            self.time[i] = strftime(self.second1970[i], "%H:%M:%S")
         else
-            self.times[i] = strftime(self.seconds1970[i], "%H:%M")
+            self.time[i] = strftime(self.second1970[i], "%H:%M")
         endif
     endloop
 

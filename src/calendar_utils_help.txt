@@ -130,15 +130,18 @@ format:         string, Format of timestamp; default: "%Y-%m-%d %H:%M"
 
 Return:
 Bundle including various components:
-  dates:        strings, Dates in the extended ISO8601 format (%Y-%m-%d)
-  seconds1970:  matrix, Column vector holding the number of seconds since the
+  date:         strings, Dates in the extended ISO8601 format (%Y-%m-%d)
+  second1970:   matrix, Column vector holding the number of seconds since the
                 start of 1970 according to Coordinated Universal Time (see
                 also gretl's strptime() function)
-  times:        strings, Array of time strings in the format %H:%M and ':%s'
+  time:         strings, Array of time strings in the format %H:%M and ':%s'
                 if 'format' includes seconds.
-  hours:        matrix, Column vector holding hourly values.
-  minutes:      matrix, Column vector holding minute values.
-  seconds:      matrix, Column vector holding the second values if available.
+  year:         matrix, Column vector holding the year values.
+  month:        matrix, Column vector holding the month values.
+  day:          matrix, Column vector holding the day of month values.
+  hour:         matrix, Column vector holding hourly values.
+  minute:       matrix, Column vector holding minute values.
+  second:       matrix, Column vector holding the second values if available.
 -----------------------------------------------------------------------
 
 
