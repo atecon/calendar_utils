@@ -25,13 +25,14 @@ no error. In case of an error, return zero (FALSE).
 Internally, gretl's built-in functions strptime() and strftime() are used. See
 the help on these functions for more details.
 
-WARNING: Before gretl 2021e, there was a gretl bug in strptime() when the date
-format passed did not consist of a month and day component, respectively. This
-bug leads to a wrong date returned. See here:
+WARNING: Prior to version 2021e, a bug in gretl's strptime() led to incorrect
+results if the date input did not specify a day of the month. So if you're
+running gretl 2021d or earlier you should ensure that date strings include day
+of month. This restriction is lifted in gretl 2021e or higher: it's OK to
+specify a year only, or just year and month. In all cases the fields in the date
+string should match those in the date_format_string.
+See here:
 https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
-To ensure correct results the caller should fully specify the input date,
-including month and day of month (and month, day should also be present in the
-format given).
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -47,13 +48,7 @@ Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD)
 in case of no error at the i-th entry. In case of an error at the i-th entry,
 return zero (FALSE).
 
-WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when
-the date format passed did not consist of a month and day component,
-respectively. This bug leads to a wrong date returned. See here:
-https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
-To ensure correct results the caller should fully specify the input date,
-including month and day of month (and month, day should also be present in the
-format given).
+See warning on date_to_iso8601().
 -----------------------------------------------------------------------
 
 
