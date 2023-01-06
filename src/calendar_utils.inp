@@ -184,9 +184,57 @@ function bundle datetime_components (const strings ts "Timestamp",
         matrix self.second = mshape(NA, nelem(ts))
     endif
 
+
+    if $version <= 20222
+        get_components_before_20223(ts, &self)
+    else
+        get_components_since_20223(ts, &self)
+    endif
+
+    return self
+end function
+
+
+function void get_components_since_20223 (const strings ts "Timestamp",
+                                          bundle *self)
+    /* Retrieve the date components. This function makes use of built-in functionalities since v20223. */
+
+    self.second1970 = strptime(ts, self.format)
+    self.date = strftime(self.second1970, "%Y-%m-%d")
+    year_str = strftime(self.second1970, "%Y")
+    month_str = strftime(self.second1970, "%m")
+    day_str = strftime(self.second1970, "%d")
+    hour_str = strftime(self.second1970, "%H")
+    minute_str = strftime(self.second1970, "%M")
+
+    if instring(self.format, "%S")
+        second_str = strftime(self.second1970, "%S")
+        self.time = strftime(self.second1970, "%H:%M:%S")
+    else
+        self.time = strftime(self.second1970, "%H:%M")
+    endif
+
+    # Once atof() supports arrays, this loop can be removed
+    loop foreach i ts
+        self.year[i] = atof(year_str[i])
+        self.month[i] = atof(month_str[i])
+        self.day[i] = atof(day_str[i])
+        self.hour[i] = atof(hour_str[i])
+        self.minute[i] = atof(minute_str[i])
+
+        if instring(self.format, "%S")
+            self.second[i] = atof(second_str[i])
+        endif
+    endloop
+end function
+
+
+function void get_components_before_20223 (const strings ts "Timestamp",
+                                           bundle *self)
+    /* Retrieve the date components. This function is for versiond lower than 20223. */
+
     loop foreach i ts
         self.second1970[i] = strptime("$i", self.format)
-
         self.date[i] = strftime(self.second1970[i], "%Y-%m-%d")
         self.year[i] = atof(strftime(self.second1970[i], "%Y"))
         self.month[i] = atof(strftime(self.second1970[i], "%m"))
@@ -201,6 +249,4 @@ function bundle datetime_components (const strings ts "Timestamp",
             self.time[i] = strftime(self.second1970[i], "%H:%M")
         endif
     endloop
-
-    return self
 end function

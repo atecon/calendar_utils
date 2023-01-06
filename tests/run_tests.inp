@@ -303,7 +303,7 @@ Params = Params + _(ts = defarray("2022-12-24 17:05"),
                     time = defarray("17:05"),
                     second1970 = {1671897900})
 
-function void test_datetime_components (const bundles P)
+function void test_datetime_components_single (const bundles P)
     print "Start testing function datetime_components() single entry."
 
     loop foreach i P
@@ -331,7 +331,7 @@ function void test_datetime_components (const bundles P)
         endloop
     endloop
 end function
-test_datetime_components(Params)
+test_datetime_components_single(Params)
 
 
 
