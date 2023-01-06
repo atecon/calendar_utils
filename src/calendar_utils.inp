@@ -30,16 +30,23 @@ end function
 function series dates_to_iso8601 (const series dates "Date string",
                                   const string date_format "e.g. %Y-%m-%d")
     /* Transforms a string-valued dates series to the numeric iso8601 format. Works for panel, time-series and cross-sectional data.
-    return: Series holding cast values of 'dates' in the numeric ISO8601
-    format (YYYYMMDD) in case of no error at the i-th entry. In case of an
+       return: Series holding cast values of 'dates' in the numeric ISO8601
+       format (YYYYMMDD) in case of no error at the i-th entry. In case of an
     error at the i-th entry, return zero (FALSE).*/
 
     series iso8601 = NA
     smpl dates --no-missing
 
-    loop i = 1..nobs(dates)
-        iso8601[i] = date_to_iso8601(dates[i], date_format)
-    endloop
+    if $version >= 20223
+        series second = strptime(dates, date_format)
+        series iso8601 = strftime(second, "%Y%m%d")
+    endif
+
+    if $version < 20223
+        loop i=$t1..$t2
+            iso8601[i] = date_to_iso8601(dates[i], date_format)
+        endloop
+    endif
 
     smpl full
 

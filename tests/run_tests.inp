@@ -30,30 +30,29 @@ test_date_to_iso8601()
 
 
 nulldata 3
-series y = normal()
 function void test_dates_to_iso8601 (void)
     print "Start with dates_to_iso8601()."
 
-    series x = seq(1, 3)'
-    strings dates = defarray("2020-09-01", "2020-09-02", "2020-13-01")
+    series x = seq(1, $nobs)'
+    strings dates = defarray("2020-09-01", "2020-09-02", "2020-12-01")
     stringify(x, dates)
 
-    series y = dates_to_iso8601(x, "%Y-%m-%d")
+    series actual = dates_to_iso8601(x, "%Y-%m-%d")
 
-    assert(y[1] == 20200901)
-    assert(y[2] == 20200902)
-    assert(y[3] == FALSE)
+    assert(actual[1] == 20200901)
+    assert(actual[2] == 20200902)
+    assert(actual[3] == 20201201)
 
     delete x --force
-    series x = seq(1, 3)'
+    series x = seq(1, $nobs)'
     strings dates = defarray("01-09-2020", "02-09-2020", "03-09-2020")
     stringify(x, dates)
 
     series y = dates_to_iso8601(x, "%d-%m-%Y")
 
-    assert(y[1] == 20200901)
-    assert(y[2] == 20200902)
-    assert(y[3] == 20200903)
+    assert(actual[1] == 20200901)
+    assert(actual[2] == 20200902)
+    assert(actual[3] == 20200903)
 end function
 test_dates_to_iso8601()
 
