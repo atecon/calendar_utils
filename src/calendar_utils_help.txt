@@ -142,7 +142,9 @@ Bundle including various components:
 
 Changelog
 ---------
-- v0.5, December 2023:
+- v0.6, January 2023:
+    + Internal improvements
+- v0.5, December 2022:
     + Add new datetime_components() function.
     + Remove function create_iso8601_series() and add a hint on how to mimic
       the function using gretl commands.
