@@ -38,8 +38,8 @@ function series dates_to_iso8601 (const series dates "Date string",
     smpl dates --no-missing
 
     if $version >= 20223
-        series second = strptime(dates, date_format)
-        series iso8601 = strftime(second, "%Y%m%d")
+        series ed = strpday(dates, date_format)
+        series iso8601 = isodate(ed)
     endif
 
     if $version < 20223
@@ -59,15 +59,23 @@ function scalar date_to_iso8601 (const string date "Date string",
     /* Transforms a date string to the numeric ISO8601 format.
     return: int, Numeric ISO8601 date if no error, otherwise zero (FALSE). */
 
-    scalar iso8601 = NA
-    catch scalar seconds = strptime(date, date_format)
+
+    if $version < 20223
+        catch scalar ed = strpday(dates, date_format)
+    else
+        catch scalar seconds = strptime(date, date_format)
+    endif
+
     if $error
         printf "\nERROR: Either no valid date string or date format were passed.\n"
         return FALSE
     endif
-    iso8601 = atof(strftime(seconds, "%Y%m%d"))
 
-    return iso8601
+    if $version < 20223
+        return isodate(ed)
+    else
+        return atof(strftime(seconds, "%Y%m%d"))
+    endif
 end function
 
 
@@ -238,7 +246,7 @@ end function
 
 function void get_components_before_20223 (const strings ts "Timestamp",
                                            bundle *self)
-    /* Retrieve the date components. This function is for versiond lower than 20223. */
+    /* Retrieve the date components. This function is for versions lower than 20223. */
 
     loop foreach i ts
         self.second1970[i] = strptime("$i", self.format)
