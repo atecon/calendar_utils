@@ -2,8 +2,8 @@
 <gretl-functions>
 <gretl-function-package name="calendar_utils" no-data-ok="true" minver="2020c">
 <author email="atecon@posteo.de">Artur Tarassow</author>
-<version>0.5</version>
-<date>2022-12-29</date>
+<version>0.6</version>
+<date>2023-01-07</date>
 <description>Collection of useful date time related tools</description>
 <tags>C88</tags>
 <help>
@@ -34,13 +34,14 @@ no error. In case of an error, return zero (FALSE).
 Internally, gretl's built-in functions strptime() and strftime() are used. See
 the help on these functions for more details.
 
-WARNING: Before gretl 2021e, there was a gretl bug in strptime() when the date
-format passed did not consist of a month and day component, respectively. This
-bug leads to a wrong date returned. See here:
+WARNING: Prior to version 2021e, a bug in gretl's strptime() led to incorrect
+results if the date input did not specify a day of the month. So if you're
+running gretl 2021d or earlier you should ensure that date strings include day
+of month. This restriction is lifted in gretl 2021e or higher: it's OK to
+specify a year only, or just year and month. In all cases the fields in the date
+string should match those in the date_format_string.
+See here:
 https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
-To ensure correct results the caller should fully specify the input date,
-including month and day of month (and month, day should also be present in the
-format given).
 -----------------------------------------------------------------------
 
 -----------------------------------------------------------------------
@@ -56,13 +57,7 @@ Series holding cast values of 'dates' in the numeric ISO8601 format (YYYYMMDD)
 in case of no error at the i-th entry. In case of an error at the i-th entry,
 return zero (FALSE).
 
-WARNING: Up to gretl version 2021d, there was a gretl bug in strptime() when
-the date format passed did not consist of a month and day component,
-respectively. This bug leads to a wrong date returned. See here:
-https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
-To ensure correct results the caller should fully specify the input date,
-including month and day of month (and month, day should also be present in the
-format given).
+See warning on date_to_iso8601().
 -----------------------------------------------------------------------
 
 
@@ -156,7 +151,9 @@ Bundle including various components:
 
 Changelog
 ---------
-- v0.5, December 2023:
+- v0.6, January 2023:
+    + Internal improvements
+- v0.5, December 2022:
     + Add new datetime_components() function.
     + Remove function create_iso8601_series() and add a hint on how to mimic
       the function using gretl commands.
@@ -189,9 +186,15 @@ format (YYYYMMDD) in case of no error at the i-th entry. In case of an
 error at the i-th entry, return zero (FALSE).*/
 series iso8601 = NA
 smpl dates --no-missing
-loop i = 1..nobs(dates)
-  iso8601[i] = date_to_iso8601(dates[i], date_format)
-endloop
+if $version &gt;= 20223
+  series ed = strpday(dates, date_format)
+  series iso8601 = isodate(ed)
+endif
+if $version &lt; 20223
+  loop i=$t1..$t2
+    iso8601[i] = date_to_iso8601(dates[i], date_format)
+  endloop
+endif
 smpl full
 return iso8601
 </code>
@@ -207,14 +210,20 @@ return iso8601
  </params>
 <code>/* Transforms a date string to the numeric ISO8601 format.
 return: int, Numeric ISO8601 date if no error, otherwise zero (FALSE). */
-scalar iso8601 = NA
-catch scalar seconds = strptime(date, date_format)
+if $version &lt; 20223
+  catch scalar ed = strpday(dates, date_format)
+else
+  catch scalar seconds = strptime(date, date_format)
+endif
 if $error
   printf &quot;\nERROR: Either no valid date string or date format were passed.\n&quot;
   return FALSE
 endif
-iso8601 = atof(strftime(seconds, &quot;%Y%m%d&quot;))
-return iso8601
+if $version &lt; 20223
+  return isodate(ed)
+else
+  return atof(strftime(seconds, &quot;%Y%m%d&quot;))
+endif
 </code>
 </gretl-function>
 <gretl-function name="numeric_to_extended_iso8601" type="string">
@@ -298,21 +307,11 @@ matrix self.second1970 = mshape(NA, nelem(ts))
 if instring(self.format, &quot;%S&quot;)
   matrix self.second = mshape(NA, nelem(ts))
 endif
-loop foreach i ts
-  self.second1970[i] = strptime(&quot;$i&quot;, self.format)
-  self.date[i] = strftime(self.second1970[i], &quot;%Y-%m-%d&quot;)
-  self.year[i] = atof(strftime(self.second1970[i], &quot;%Y&quot;))
-  self.month[i] = atof(strftime(self.second1970[i], &quot;%m&quot;))
-  self.day[i] = atof(strftime(self.second1970[i], &quot;%d&quot;))
-  self.hour[i] = atof(strftime(self.second1970[i], &quot;%H&quot;))
-  self.minute[i] = atof(strftime(self.second1970[i], &quot;%M&quot;))
-  if instring(self.format, &quot;%S&quot;)
-    self.second[i] = atof(strftime(self.second1970[i], &quot;%S&quot;))
-    self.time[i] = strftime(self.second1970[i], &quot;%H:%M:%S&quot;)
-  else
-    self.time[i] = strftime(self.second1970[i], &quot;%H:%M&quot;)
-  endif
-endloop
+if $version &lt;= 20222
+  get_components_before_20223(ts, &amp;self)
+else
+  get_components_since_20223(ts, &amp;self)
+endif
 return self
 </code>
 </gretl-function>
@@ -385,6 +384,65 @@ elif frequency == &quot;monthly&quot;
 else
   errorif(TRUE, sprintf(&quot;Frequency '%s' not supported.&quot;, frequency))
 endif
+</code>
+</gretl-function>
+<gretl-function name="get_components_since_20223" type="void" private="1">
+ <params count="2">
+  <param name="ts" type="strings" const="true">
+<description>Timestamp</description>
+  </param>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Retrieve the date components. This function makes use of built-in functionalities since v20223. */
+self.second1970 = strptime(ts, self.format)
+self.date = strftime(self.second1970, &quot;%Y-%m-%d&quot;)
+year_str = strftime(self.second1970, &quot;%Y&quot;)
+month_str = strftime(self.second1970, &quot;%m&quot;)
+day_str = strftime(self.second1970, &quot;%d&quot;)
+hour_str = strftime(self.second1970, &quot;%H&quot;)
+minute_str = strftime(self.second1970, &quot;%M&quot;)
+if instring(self.format, &quot;%S&quot;)
+  second_str = strftime(self.second1970, &quot;%S&quot;)
+  self.time = strftime(self.second1970, &quot;%H:%M:%S&quot;)
+else
+  self.time = strftime(self.second1970, &quot;%H:%M&quot;)
+endif
+# Once atof() supports arrays, this loop can be removed
+loop foreach i ts
+  self.year[i] = atof(year_str[i])
+  self.month[i] = atof(month_str[i])
+  self.day[i] = atof(day_str[i])
+  self.hour[i] = atof(hour_str[i])
+  self.minute[i] = atof(minute_str[i])
+  if instring(self.format, &quot;%S&quot;)
+    self.second[i] = atof(second_str[i])
+  endif
+endloop
+</code>
+</gretl-function>
+<gretl-function name="get_components_before_20223" type="void" private="1">
+ <params count="2">
+  <param name="ts" type="strings" const="true">
+<description>Timestamp</description>
+  </param>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Retrieve the date components. This function is for versions lower than 20223. */
+loop foreach i ts
+  self.second1970[i] = strptime(&quot;$i&quot;, self.format)
+  self.date[i] = strftime(self.second1970[i], &quot;%Y-%m-%d&quot;)
+  self.year[i] = atof(strftime(self.second1970[i], &quot;%Y&quot;))
+  self.month[i] = atof(strftime(self.second1970[i], &quot;%m&quot;))
+  self.day[i] = atof(strftime(self.second1970[i], &quot;%d&quot;))
+  self.hour[i] = atof(strftime(self.second1970[i], &quot;%H&quot;))
+  self.minute[i] = atof(strftime(self.second1970[i], &quot;%M&quot;))
+  if instring(self.format, &quot;%S&quot;)
+    self.second[i] = atof(strftime(self.second1970[i], &quot;%S&quot;))
+    self.time[i] = strftime(self.second1970[i], &quot;%H:%M:%S&quot;)
+  else
+    self.time[i] = strftime(self.second1970[i], &quot;%H:%M&quot;)
+  endif
+endloop
 </code>
 </gretl-function>
 <sample-script>
