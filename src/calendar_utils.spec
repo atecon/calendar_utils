@@ -1,11 +1,11 @@
 author = Artur Tarassow
 email = atecon@posteo.de
-version = 0.6
-date = 2023-01-07
+version = 0.7
+date = 2025-09-03
 description = Collection of useful date time related tools
 tags = C88
-min-version = 2020c
+min-version = 2023a
 public = dates_to_iso8601 date_to_iso8601 numeric_to_extended_iso8601 gdate_to_iso8601 iso8601_to_dates datetime_components
 data-requirement = no-data-ok
-help = calendar_utils_help.txt
+help = calendar_utils_help.md
 sample-script = calendar_utils_sample.inp
