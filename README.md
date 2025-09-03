@@ -1,100 +1,131 @@
-# The "calendar_utils" package for Gretl
-Collection of useful date time related tools. Most functions are convenience functions for working with date strings and date string series.
+# Calendar Utilities
 
-The package comprises three public functions which are described in the following.
+Collection of date/time related tools for convenience when working with date strings and date string series in gretl.
 
-# Installation
-The package can be downloaded and loaded from the official gretl package server via the command:
-```
-pkg install calendar_utils    # Download once
-include calendar_utils.gfn    # Load into memory
-```
+Most functions are small wrappers around gretl's built-in strptime()/strftime() utilities and other date helpers. Please ask questions and report bugs on the gretl mailing list or by creating an issue on the project repository:
 
-# Public functions
+https://github.com/atecon/calendar_utils
 
-## ```date_to_iso8601()```
-The function ```date_to_iso8601()``` casts a date string to the numeric ISO8601 format. Here are examples on how to use this function:
+## Public functions
 
-```
-string date1 = "2020-09-03"
-string date2 = "20200903"
-string date3 = "03-09-2020"
-string date4 = "03/09/2020"
+### date_to_iso8601(date, date_format)
 
-scalar iso1 = date_to_iso8601(date1, "%Y-%m-%d")
-scalar iso2 = date_to_iso8601(date2, "%Y%m%d")
-scalar iso3 = date_to_iso8601(date3, "%d-%m-%Y")
-scalar iso4 = date_to_iso8601(date4, "%d/%m/%Y")
+Arguments:
 
-print iso1 iso2 iso3 iso4
-```
+- `date`: string — a date string
+- `date_format`: string — format of `date`, e.g. `%Y-%m-%d`
 
-The following scalar values are printed:
-```
-           iso1 =  20200903.
+Return:
 
-           iso2 =  20200903.
+A scalar integer in numeric ISO8601 format (YYYYMMDD) on success; zero (FALSE) on error. Internally this uses gretl's `strptime()` and `strftime()`.
 
-           iso3 =  20200903.
+**Warning:** Prior to gretl 2021e, a bug in `strptime()` produced incorrect results if the input omitted the day of month. If you run gretl 2021d or earlier, ensure date strings include a day. Since 2021e it's acceptable to provide year-only or year+month values, but the fields in the date string must match `date_format`.
 
-           iso4 =  20200903.
-```
+Reference:
+https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
 
-## ```dates_to_iso860```
-The function ```dates_to_iso8601()``` casts the date strings of a series to the numeric ISO8601 format. It works for all gretl data sets namely cross-sectional, time-series and panel data sets.
+---
 
-Here are examples on how to use this function. First, we create tiny dummy panel data set with two cross-sectional units and for each we have a time-series of length three. Series ```z``` is a string-values series holding some date strings. These date strings are cast to the ISO8601 format.
+### dates_to_iso8601(dates, date_format)
 
-```
-nulldata 6
-scalar T = 3
-setobs T 1:1 --stacked-time-series
-series x = create_iso8601_series(20200101)
+Arguments:
 
-series z = seq(1, 3)' | seq(1, 3)'
-strings dates = defarray("2020-09-01", "2020-09-02", "2020-09-03")
-stringify(z, dates)
+- `dates`: series — a series of date strings
+- `date_format`: string — format of the entries in `dates`, e.g. `%Y-%m-%d`
 
-series y = dates_to_iso8601(z, "%Y-%m-%d")
-print z y -o
-```
+Return:
 
-The output is as follows:
-```
-1:1   2020-09-01     20200901
-1:2   2020-09-02     20200902
-1:3   2020-09-03     20200903
-2:1   2020-09-01     20200901
-2:2   2020-09-02     20200902
-2:3   2020-09-03     20200903
+A series of numeric ISO8601 dates (YYYYMMDD). For each entry, the function returns the numeric date if casting succeeds and zero (FALSE) on error.
 
-```
+See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in older gretl versions.
 
-## ```create_iso8601_series```
-Sometimes one wants to create a series object holding dates. This function takes as a single argument a starting date in the ISO8601 format, and creates a chronological sequence of dates depending on the length of the data set. This function again works for all three gretl data sets supported.
+---
 
-Using the same dummy panel data set as before, here is an example:
+### iso8601_to_string(value, target_format[null])
 
-```
-series x = create_iso8601_series(20200101)
-print x -o
-```
+*Arguments:*
 
-This yields:
-```
-               x
+- `value`: numeric — numeric ISO8601 date (scalar, series, or column-vector matrix). Examples: `20200903`, `19900101`.
+- `target_format`: string (optional) — target strftime-style format for the output strings. Default: `%Y-%m-%d`.
 
-1:1     20200101
-1:2     20200102
-1:3     20200103
-2:1     20200101
-2:2     20200102
-2:3     20200103
-```
+*Return:*
 
-# Tests
-Unit tests can be found in the file ```./tests/run_tests.inp``` and executed on linux through the shell script ```./run_tests.sh```.
+- `strings`: an array with the date(s) formatted according to `target_format`.
+- Invalid or unparsable inputs produce an empty string at the corresponding position and a warning may be printed.
 
-# Changelog
-- v0.1, October 2020:
-    + initial release
+*Notes:*
+
+- Accepts and handles scalar, series and column-vector matrix inputs. For series, missing values are flagged and empty strings are returned for problematic entries.
+- This function **supersedes older helpers** such as `numeric_to_extended_iso8601()` and `iso8601_to_dates()` by providing flexible output formatting and unified handling of input types.
+
+---
+
+### iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+
+Arguments:
+
+- `dates`: series — series of numeric ISO8601 dates
+
+Return:
+
+A string array (strings) with dates converted to extended ISO8601 format (`YYYY-MM-DD`) by default. Missing or invalid input entries are returned as empty strings. This function is the inverse of `dates_to_iso8601()` for common cases.
+
+---
+
+### numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+
+Arguments:
+
+- `date`: int — numeric ISO8601 date in format `YYYYMMDD`
+
+Return:
+
+A date string in extended ISO8601 format (`YYYY-MM-DD`) on success; an empty string on invalid input.
+
+---
+
+### gdate_to_iso8601(date, frequency[null])
+
+Arguments:
+
+- `date`: string — date string in gretl formats such as `%Y:%m` or `%Y.%m`
+- `frequency`: string (optional) — either `monthly` or `quarterly`. If omitted, the function attempts to determine periodicity from the active dataset.
+
+Return:
+
+Numeric ISO8601 integer (YYYYMMDD) for monthly or quarterly input. Uses gretl's `strptime()`/`strftime()` internally.
+
+---
+
+### datetime_components(ts, format[null])
+
+Extract date/time components from datetime (timestamp) strings.
+
+Arguments:
+
+- `ts`: strings — array of datetime strings (timestamps)
+- `format`: string, optional — format of the timestamp; default is `%Y-%m-%d %H:%M`
+
+Return:
+
+A bundle containing these elements:
+
+- `date`: strings — dates in extended ISO8601 (`%Y-%m-%d`)
+- `second1970`: matrix — column vector of seconds since 1970 (UTC), per gretl's `strptime()` semantics
+- `time`: strings — time strings in `%H:%M` or `%H:%M:%s` when seconds are present
+- `year`, `month`, `day`, `hour`, `minute`: matrices — column vectors with the respective numeric components
+- `second`: matrix — column vector with seconds if available
+
+
+## Changelog (highlights)
+
+- v0.7, September 2025: Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates(); Help text as markdown document: improved formatting and structure; Raise min. Gretl version to 2023a; Bugfix: refactor datetime_components() function to improve variable declarations and add type safety
+- v0.6, January 2023: Internal improvements
+- v0.5, December 2022:
+  - Add `datetime_components()`
+  - Remove `create_iso8601_series()` and add guidance for `setobs` usage
+  - Improve error handling notes for `iso8601_to_dates()`; both `dates_to_iso8601()` and `date_to_iso8601()` return zero on parse error
+- v0.4, January 2022: Added `iso8601_to_dates()`
+- v0.3, October 2021: Improved help text and added `gdate_to_iso8601()`
+- v0.2, October 2020: Added `numeric_to_extended_iso8601()`
+- v0.1, October 2020: Initial release
