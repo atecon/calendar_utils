@@ -110,8 +110,8 @@ end function
 test_numeric_to_ext_iso8601()
 
 
-function void test_numobs_to_date (void)
-    print "Start with numobs_to_date()."
+function void test_numobs_to_date_scalar (void)
+    print "Start with numobs_to_date() for scalar series."
 
     scalar date1 = 19710130
     scalar date2 = 18440728
@@ -142,7 +142,29 @@ function void test_numobs_to_date (void)
     assert(date3_got == "14-10-2020")
     assert(date4_got == "")
 end function
-test_numobs_to_date()
+test_numobs_to_date_scalar()
+
+
+function void test_numobs_to_date_matrix (void)
+    print "Start with numobs_to_date() for matrix input."
+
+    matrix dates1 = {19710130, 18440728}
+    matrix dates2 = {19710130; NA; 18440728}
+
+    string date_format = "%Y-%m-%d"
+    strings dates1_got = numobs_to_date(dates1, date_format)
+    strings dates2_got = numobs_to_date(dates2, date_format)
+
+    assert(dates1_got[1] == "1971-01-30")
+    assert(dates1_got[2] == "1844-07-28")
+    # 2nd vector
+    assert(dates2_got[1] == "1971-01-30")
+    assert(dates2_got[2] == "")
+    assert(dates2_got[3] == "1844-07-28")
+end function
+test_numobs_to_date_matrix()
+print "OK"
+stop
 
 
 nulldata 3 --preserve
