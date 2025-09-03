@@ -1,3 +1,68 @@
+function strings iso8601_to_string (const numeric value "ISO8601 numeric date value",
+                                    string target_format[null])
+    /* Converts numeric ISO8601 date(s) (YYYYMMDD) to extended ISO8601 date string(s).
+       Accepts scalar, series, or column vector matrix as input.
+       Returns a bundle with a 'result' member containing the string(s).
+       In case of error, returns empty string array (strings) at the corresponding position(s).
+
+       Interesting formats are:
+       - "%Ym%m", e.g. 1990m01
+       - "%Y%m%d", e.g. 20200903
+       - "%d-%m-%Y", e.g. 03-09-2020
+       - "%d/%m/%Y", e.g. 03/09/2020
+       - "%Y", e.g. 1984
+       */
+
+    strings Ret = array(0)
+    string type_value = typename(value)
+    string target_format = !exists(target_format) ? "%Y-%m-%d" : target_format
+
+    if type_value == "scalar"
+        catch string ret = strfday(epochday(value), target_format)
+        if $error
+            printf("Warning: Numeric value %d cannot be cast to date string in format '%s'.\n",
+                    value, target_format)
+            Ret += ""  # Return an empty string
+        else
+            Ret += ret
+        endif
+        return Ret
+
+    elif type_value == "series"
+        if sum(missing(value)) > 0
+            print "Warning: Input series contains missing values. Cannot convert to date strings."
+            # strfday() does not handle series with missing values
+            Ret += ""  # Return an empty string
+            return Ret
+        endif
+
+        series f = strfday(epochday(value), target_format)
+        strings Ret = f
+        if $error
+            printf("Warning: Series value cannot be cast to date string in format '%s'.\n",
+                    target_format)
+            Ret += ""  # Return an empty string
+        endif
+        return Ret
+
+    elif type_value == "matrix"
+        matrix mat = vec(value)  # transform to column vector
+        scalar n_values = nelem(mat)
+        strings Ret = array(n_values)
+
+        loop i=1..n_values
+            catch string date = strfday(epochday(mat[i]), target_format)
+            Ret[i] = $error ? "" : date
+        endloop
+        return Ret
+    else
+        errorif(TRUE, "Input must be scalar, series, or column vector matrix.")
+    endif
+
+    return out
+end function
+
+# TODO: Superseded by iso8601_to_string()
 function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric date value")
     /* Cast numeric ISO8601 date (YYYYMMDD) to extended ISO8601 date string.
     In case of an error, an empty string is returned. */
@@ -12,6 +77,7 @@ function string numeric_to_extended_iso8601 (const int value "ISO8601 numeric da
 end function
 
 
+# TODO: Superseded by iso8601_to_string()
 function strings iso8601_to_dates (const series dates "Num. ISO8601 date")
     /* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format ("YYYY-MM-DD") is returned.
     Return empty string at the i-th position in case the i-th 'dates' entry
