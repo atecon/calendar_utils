@@ -41,7 +41,26 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 
 ---
 
-### iso8601_to_dates(dates)
+### iso8601_to_string(value, target_format[null])
+
+*Arguments:*
+
+- `value`: numeric — numeric ISO8601 date (scalar, series, or column-vector matrix). Examples: `20200903`, `19900101`.
+- `target_format`: string (optional) — target strftime-style format for the output strings. Default: `%Y-%m-%d`.
+
+*Return:*
+
+- `strings`: an array with the date(s) formatted according to `target_format`.
+- Invalid or unparsable inputs produce an empty string at the corresponding position and a warning may be printed.
+
+*Notes:*
+
+- Accepts and handles scalar, series and column-vector matrix inputs. For series, missing values are flagged and empty strings are returned for problematic entries.
+- This function **supersedes older helpers** such as `numeric_to_extended_iso8601()` and `iso8601_to_dates()` by providing flexible output formatting and unified handling of input types.
+
+---
+
+### iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
 
 Arguments:
 
@@ -53,27 +72,7 @@ A string array (strings) with dates converted to extended ISO8601 format (`YYYY-
 
 ---
 
-### create_iso8601_series(init_date)
-
-Removed since v0.5.
-
-Use gretl's built-in obs/date facilities instead. For example, to set a daily time series structure:
-
-```
-setobs 7 2020-01-01 --time-series
-```
-
-For a panel with daily frequency:
-
-```
-setobs 7 2020-01-01 --panel-time
-```
-
-The numeric ISO8601 series is available as the dataset accessor `$obsdate`.
-
----
-
-### numeric_to_extended_iso8601(date)
+### numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
 
 Arguments:
 
@@ -120,7 +119,7 @@ A bundle containing these elements:
 
 ## Changelog (highlights)
 
-- v0.7, September 2025: Help text as markdown document: improved formatting and structure; Raise min. Gretl version to 2023a
+- v0.7, September 2025: Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates(); Help text as markdown document: improved formatting and structure; Raise min. Gretl version to 2023a; Bugfix: refactor datetime_components() function to improve variable declarations and add type safety
 - v0.6, January 2023: Internal improvements
 - v0.5, December 2022:
   - Add `datetime_components()`
