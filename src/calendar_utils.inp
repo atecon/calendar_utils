@@ -199,7 +199,6 @@ function bundle datetime_components (const strings ts "Timestamp",
         matrix self.second = mshape(NA, nelem(ts))
     endif
 
-
     if $version <= 20222
         get_components_before_20223(ts, &self)
     else
@@ -216,11 +215,11 @@ function void get_components_since_20223 (const strings ts "Timestamp",
 
     self.second1970 = strptime(ts, self.format)
     self.date = strftime(self.second1970, "%Y-%m-%d")
-    year_str = strftime(self.second1970, "%Y")
-    month_str = strftime(self.second1970, "%m")
-    day_str = strftime(self.second1970, "%d")
-    hour_str = strftime(self.second1970, "%H")
-    minute_str = strftime(self.second1970, "%M")
+    strings year_str = strftime(self.second1970, "%Y")
+    strings month_str = strftime(self.second1970, "%m")
+    strings day_str = strftime(self.second1970, "%d")
+    strings hour_str = strftime(self.second1970, "%H")
+    strings minute_str = strftime(self.second1970, "%M")
 
     if instring(self.format, "%S")
         second_str = strftime(self.second1970, "%S")
@@ -229,7 +228,7 @@ function void get_components_since_20223 (const strings ts "Timestamp",
         self.time = strftime(self.second1970, "%H:%M")
     endif
 
-    # Once atof() supports arrays, this loop can be removed
+    # TODO: Once atof() supports arrays, this loop can be removed
     loop foreach i ts
         self.year[i] = atof(year_str[i])
         self.month[i] = atof(month_str[i])
