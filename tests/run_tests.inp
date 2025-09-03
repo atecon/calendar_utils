@@ -157,10 +157,12 @@ function void test_numobs_to_date_matrix (void)
 
     assert(dates1_got[1] == "1971-01-30")
     assert(dates1_got[2] == "1844-07-28")
+    assert(nelem(dates1_got) == nelem(dates1))  # same length
     # 2nd vector
     assert(dates2_got[1] == "1971-01-30")
     assert(dates2_got[2] == "")
     assert(dates2_got[3] == "1844-07-28")
+    assert(nelem(dates2_got) == nelem(dates2))  # same length
 end function
 test_numobs_to_date_matrix()
 print "OK"
