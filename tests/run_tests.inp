@@ -165,8 +165,54 @@ function void test_numobs_to_date_matrix (void)
     assert(nelem(dates2_got) == nelem(dates2))  # same length
 end function
 test_numobs_to_date_matrix()
-print "OK"
-stop
+
+
+nulldata 3 --preserve
+function void test_numobs_to_date_series (void)
+    print "Start with numobs_to_date_series()."
+
+    # Given
+    series input = {20220101, 20220102, 20220103}'
+    string date_format = "%Y-%m-%d"
+    strings expected = defarray("2022-01-01",
+                                "2022-01-02",
+                                "2022-01-03")
+    # When
+    strings actual = numobs_to_date(input, date_format)
+    # Then
+    loop i=1..nelem(expected)
+        assert(actual[i] == expected[i])
+    endloop
+    assert(nelem(actual) == nelem(expected))
+    print "Successful for first test part."
+
+    # For different date format and NAs
+    date_format = "%d-%m-%Y"
+    series input = {20220101, 20220102, 20220103}'
+    strings expected = defarray("01-01-2022",\
+                                "02-01-2022",\
+                                "03-01-2022")
+    strings actual = numobs_to_date(input, date_format)
+    loop i=1..nelem(expected)
+        assert(actual[i] == expected[i])
+    endloop
+    assert(nelem(actual) == nelem(expected))
+    print "Successful for second test part."
+
+    # For different date format and NAs
+    date_format = "%Ym%m"
+    series input = {20220101, 20220201, 20220301}'
+    strings expected = defarray("2022m01",\
+                                "2022m02",\
+                                "2022m03")
+    strings actual = numobs_to_date(input, date_format)
+    loop i=1..nelem(expected)
+        assert(actual[i] == expected[i])
+    endloop
+    assert(nelem(actual) == nelem(expected))
+    print "Successful for third test part."
+end function
+test_numobs_to_date_series()
 
 
 nulldata 3 --preserve
