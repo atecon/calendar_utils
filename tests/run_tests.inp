@@ -110,8 +110,8 @@ end function
 test_numeric_to_ext_iso8601()
 
 
-function void test_numobs_to_date_scalar (void)
-    print "Start with numobs_to_date() for scalar series."
+function void test_iso8601_to_dates_scalar (void)
+    print "Start with iso8601_to_dates() for scalar series."
 
     scalar date1 = 19710130
     scalar date2 = 18440728
@@ -119,10 +119,10 @@ function void test_numobs_to_date_scalar (void)
     scalar date4 = 20201410
 
     string date_format = "%Y-%m-%d"
-    string date1_got = numobs_to_date(date1, date_format)[1]
-    string date2_got = numobs_to_date(date2, date_format)[1]
-    string date3_got = numobs_to_date(date3, date_format)[1]
-    string date4_got = numobs_to_date(date4, date_format)[1]
+    string date1_got = iso8601_to_dates(date1, date_format)[1]
+    string date2_got = iso8601_to_dates(date2, date_format)[1]
+    string date3_got = iso8601_to_dates(date3, date_format)[1]
+    string date4_got = iso8601_to_dates(date4, date_format)[1]
 
     assert(date1_got == "1971-01-30")
     assert(date2_got == "1844-07-28")
@@ -132,28 +132,28 @@ function void test_numobs_to_date_scalar (void)
 
     # Different date format
     date_format = "%d-%m-%Y"
-    string date1_got = numobs_to_date(date1, date_format)[1]
-    string date2_got = numobs_to_date(date2, date_format)[1]
-    string date3_got = numobs_to_date(date3, date_format)[1]
-    string date4_got = numobs_to_date(date4, date_format)[1]
+    string date1_got = iso8601_to_dates(date1, date_format)[1]
+    string date2_got = iso8601_to_dates(date2, date_format)[1]
+    string date3_got = iso8601_to_dates(date3, date_format)[1]
+    string date4_got = iso8601_to_dates(date4, date_format)[1]
 
     assert(date1_got == "30-01-1971")
     assert(date2_got == "28-07-1844")
     assert(date3_got == "14-10-2020")
     assert(date4_got == "")
 end function
-test_numobs_to_date_scalar()
+test_iso8601_to_dates_scalar()
 
 
-function void test_numobs_to_date_matrix (void)
-    print "Start with numobs_to_date() for matrix input."
+function void test_iso8601_to_dates_matrix (void)
+    print "Start with iso8601_to_dates() for matrix input."
 
     matrix dates1 = {19710130, 18440728}
     matrix dates2 = {19710130; NA; 18440728}
 
     string date_format = "%Y-%m-%d"
-    strings dates1_got = numobs_to_date(dates1, date_format)
-    strings dates2_got = numobs_to_date(dates2, date_format)
+    strings dates1_got = iso8601_to_dates(dates1, date_format)
+    strings dates2_got = iso8601_to_dates(dates2, date_format)
 
     assert(dates1_got[1] == "1971-01-30")
     assert(dates1_got[2] == "1844-07-28")
@@ -164,12 +164,12 @@ function void test_numobs_to_date_matrix (void)
     assert(dates2_got[3] == "1844-07-28")
     assert(nelem(dates2_got) == nelem(dates2))  # same length
 end function
-test_numobs_to_date_matrix()
+test_iso8601_to_dates_matrix()
 
 
 nulldata 3 --preserve
-function void test_numobs_to_date_series (void)
-    print "Start with numobs_to_date_series()."
+function void test_iso8601_to_dates_series (void)
+    print "Start with iso8601_to_dates_series()."
 
     # Given
     series input = {20220101, 20220102, 20220103}'
@@ -178,7 +178,7 @@ function void test_numobs_to_date_series (void)
                                 "2022-01-02",
                                 "2022-01-03")
     # When
-    strings actual = numobs_to_date(input, date_format)
+    strings actual = iso8601_to_dates(input, date_format)
     # Then
     loop i=1..nelem(expected)
         assert(actual[i] == expected[i])
@@ -192,7 +192,7 @@ function void test_numobs_to_date_series (void)
     strings expected = defarray("01-01-2022",\
                                 "02-01-2022",\
                                 "03-01-2022")
-    strings actual = numobs_to_date(input, date_format)
+    strings actual = iso8601_to_dates(input, date_format)
     loop i=1..nelem(expected)
         assert(actual[i] == expected[i])
     endloop
@@ -205,14 +205,14 @@ function void test_numobs_to_date_series (void)
     strings expected = defarray("2022m01",\
                                 "2022m02",\
                                 "2022m03")
-    strings actual = numobs_to_date(input, date_format)
+    strings actual = iso8601_to_dates(input, date_format)
     loop i=1..nelem(expected)
         assert(actual[i] == expected[i])
     endloop
     assert(nelem(actual) == nelem(expected))
     print "Successful for third test part."
 end function
-test_numobs_to_date_series()
+test_iso8601_to_dates_series()
 
 
 nulldata 3 --preserve
