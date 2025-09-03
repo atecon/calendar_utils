@@ -110,6 +110,41 @@ end function
 test_numeric_to_ext_iso8601()
 
 
+function void test_numobs_to_date (void)
+    print "Start with numobs_to_date()."
+
+    scalar date1 = 19710130
+    scalar date2 = 18440728
+    scalar date3 = 20201014
+    scalar date4 = 20201410
+
+    string date_format = "%Y-%m-%d"
+    string date1_got = numobs_to_date(date1, date_format)[1]
+    string date2_got = numobs_to_date(date2, date_format)[1]
+    string date3_got = numobs_to_date(date3, date_format)[1]
+    string date4_got = numobs_to_date(date4, date_format)[1]
+
+    assert(date1_got == "1971-01-30")
+    assert(date2_got == "1844-07-28")
+    assert(date3_got == "2020-10-14")
+    assert(date4_got == "")
+
+
+    # Different date format
+    date_format = "%d-%m-%Y"
+    string date1_got = numobs_to_date(date1, date_format)[1]
+    string date2_got = numobs_to_date(date2, date_format)[1]
+    string date3_got = numobs_to_date(date3, date_format)[1]
+    string date4_got = numobs_to_date(date4, date_format)[1]
+
+    assert(date1_got == "30-01-1971")
+    assert(date2_got == "28-07-1844")
+    assert(date3_got == "14-10-2020")
+    assert(date4_got == "")
+end function
+test_numobs_to_date()
+
+
 nulldata 3 --preserve
 function void test_iso8601_to_dates (void)
     print "Start with iso8601_to_dates()."
