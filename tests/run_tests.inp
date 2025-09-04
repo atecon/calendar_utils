@@ -491,6 +491,55 @@ end function
 test_datetime_components(Params)
 
 
+function void test_iso8601_to_period_label_s (void)
+    print "Start with iso8601_to_period_label() scalar input."
 
+    # monthly (auto-detect)
+    scalar date1 = 20230315
+    string expected1 = "2023m3"
+    strings got1 = iso8601_to_period_label(date1)
+    assert(nelem(got1) == 1)
+    assert(got1[1] == expected1)
+
+    # explicit quarterly
+    scalar date2 = 20230615
+    string expected2 = "2023q2"
+    strings got2 = iso8601_to_period_label(date2, "quarterly")
+    assert(got2[1] == expected2)
+
+    # invalid month -> empty string
+    scalar date3 = 20231401
+    string expected3 = ""
+    strings got3 = iso8601_to_period_label(date3)
+    assert(got3[1] == expected3)
+
+    print "iso8601_to_period_label() scalar tests passed."
+end function
+test_iso8601_to_period_label_s()
+
+
+function void t_period_label_from_value_scal (void)
+    print "Start testing period_label_from_value() scalar input."
+
+    # monthly label
+    scalar v1 = 20230315
+    string r1 = period_label_from_value(v1, "monthly")
+    assert(r1 == "2023m1")
+
+    # quarterly label
+    string r1q = period_label_from_value(v1, "quarterly")
+    assert(r1q == "2023q1")
+
+    # invalid frequency -> expect empty string and a warning
+    string r2 = period_label_from_value(20230101, "foo")
+    assert(r2 == "")
+
+    # invalid month -> expect empty string
+    string r3 = period_label_from_value(20231401, "monthly")
+    assert(r3 == "")
+
+    print "period_label_from_value() scalar tests passed."
+end function
+t_period_label_from_value_scal()
 
 quit
