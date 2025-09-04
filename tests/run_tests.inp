@@ -516,41 +516,41 @@ test_period_label_from_value()
 
 
 function void test_iso8601_to_period_label_s (void)
-    print "Start with iso8601_to_period_label() scalar input."
+    print "Start with iso8601_to_period_labels() scalar input."
 
     # monthly (auto-detect)
     scalar date1 = 20230315
     string expected1 = "2023m3"
-    strings got1 = iso8601_to_period_label(date1)
+    strings got1 = iso8601_to_period_labels(date1)
     assert(nelem(got1) == 1)
     assert(got1[1] == expected1)
 
     # quarterly (auto-detect)
     scalar date2 = 20230401
     string expected2 = "2023q2"
-    strings got2 = iso8601_to_period_label(date2)
+    strings got2 = iso8601_to_period_labels(date2)
     assert(nelem(got2) == 1)
     assert(got2[1] == expected2)
 
     # explicit quarterly
     scalar date3 = 20230615
     string expected3 = "2023q2"
-    strings got3 = iso8601_to_period_label(date3, "quarterly")
+    strings got3 = iso8601_to_period_labels(date3, "quarterly")
     assert(got3[1] == expected3)
 
     # invalid month -> empty string
     scalar date4 = 20231401
     string expected4 = ""
-    strings got4 = iso8601_to_period_label(date4)
+    strings got4 = iso8601_to_period_labels(date4)
     assert(got4[1] == expected4)
 
     # non-valid date (e.g. 20231340)
     scalar date5 = 20231340
     string expected5 = ""
-    strings got5 = iso8601_to_period_label(date5)
+    strings got5 = iso8601_to_period_labels(date5)
     assert(got5[1] == expected5)
 
-    print "iso8601_to_period_label() scalar tests passed."
+    print "iso8601_to_period_labels() scalar tests passed."
 end function
 test_iso8601_to_period_label_s()
 
@@ -558,14 +558,14 @@ test_iso8601_to_period_label_s()
 nulldata 5 --preserve
 setobs 4 2020:1 --time-series
 function void test_iso8601_to_period_label_ts (void)
-    print "Start with iso8601_to_period_label() time-series input."
+    print "Start with iso8601_to_period_labels() time-series input."
 
     # monthly (auto-detect)
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("2020q1", "2020q2", "2020q3", "", "2021q1")
-    strings got1 = iso8601_to_period_label(dates)
-    strings got2 = iso8601_to_period_label(dates, "quarterly")
+    strings got1 = iso8601_to_period_labels(dates)
+    strings got2 = iso8601_to_period_labels(dates, "quarterly")
 
     assert(nelem(got1) == nelem(expected1))
     assert(nelem(got2) == nelem(expected1))
@@ -574,7 +574,7 @@ function void test_iso8601_to_period_label_ts (void)
         assert(got2[i] == expected1[i])
     endloop
 
-    print "iso8601_to_period_label() for time-series tests passed."
+    print "iso8601_to_period_labels() for time-series tests passed."
 end function
 test_iso8601_to_period_label_ts()
 
@@ -583,14 +583,14 @@ nulldata 6 --preserve
 setobs 3 1:1 --stacked-time-series
 setobs 12 2020:01 --panel-time
 function void test_iso8601_to_period_label_ts (void)
-    print "Start with iso8601_to_period_label() time-series input."
+    print "Start with iso8601_to_period_labels() time-series input."
 
     # monthly
     series dates = $obsdate
     dates[5] = NA
     strings expected1 = defarray("2020m1", "2020m2", "2020m3", "2020m1", "", "2020m3")
-    strings got1 = iso8601_to_period_label(dates)  # auto-detect
-    strings got2 = iso8601_to_period_label(dates, "monthly")
+    strings got1 = iso8601_to_period_labels(dates)  # auto-detect
+    strings got2 = iso8601_to_period_labels(dates, "monthly")
 
     assert(nelem(got1) == nelem(expected1))
     assert(nelem(got2) == nelem(expected1))
@@ -599,7 +599,7 @@ function void test_iso8601_to_period_label_ts (void)
         assert(got2[i] == expected1[i])
     endloop
 
-    print "iso8601_to_period_label() for time-series tests passed."
+    print "iso8601_to_period_labels() for time-series tests passed."
 end function
 test_iso8601_to_period_label_ts()
 
@@ -608,13 +608,13 @@ test_iso8601_to_period_label_ts()
 nulldata 5 --preserve
 setobs 1 2020 --time-series  # annual data
 function void test_iso8601_to_period_label_a (void)
-    print "Start with iso8601_to_period_label() annual time-series input."
+    print "Start with iso8601_to_period_labels() annual time-series input."
 
     print "impose quarterly frequency"
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("2020q1", "2021q1", "2022q1", "", "2024q1")
-    strings got = iso8601_to_period_label(dates, "quarterly")
+    strings got = iso8601_to_period_labels(dates, "quarterly")
 
     assert(nelem(got) == nelem(expected1))
     loop foreach i got
@@ -625,14 +625,14 @@ function void test_iso8601_to_period_label_a (void)
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("", "", "", "", "")
-    strings got = iso8601_to_period_label(dates, "auto")
+    strings got = iso8601_to_period_labels(dates, "auto")
 
     assert(nelem(got) == nelem(expected1))
     loop foreach i got
         assert(got[i] == expected1[i])
     endloop
 
-    print "iso8601_to_period_label() for annual time-series tests passed."
+    print "iso8601_to_period_labels() for annual time-series tests passed."
 end function
 test_iso8601_to_period_label_a()
 
@@ -640,14 +640,14 @@ test_iso8601_to_period_label_a()
 nulldata 7 --preserve
 setobs 7 2020-01-01 --time-series  # annual data
 function void test_iso8601_to_period_label_dy (void)
-    print "Start with iso8601_to_period_label() daily time-series input."
+    print "Start with iso8601_to_period_labels() daily time-series input."
 
     print "impose quarterly frequency"
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("2020q1", "2020q1", "2020q1", "2020q1",
                                 "2020q1", "", "2020q1")
-    strings got = iso8601_to_period_label(dates, "quarterly")
+    strings got = iso8601_to_period_labels(dates, "quarterly")
 
     assert(nelem(got) == nelem(expected1))
     loop foreach i got
@@ -659,24 +659,24 @@ function void test_iso8601_to_period_label_dy (void)
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("", "", "", "", "", "", "")
-    strings got = iso8601_to_period_label(dates)
+    strings got = iso8601_to_period_labels(dates)
 
     assert(nelem(got) == nelem(expected1))
     loop foreach i got
         assert(got[i] == expected1[i])
     endloop
 
-    print "iso8601_to_period_label() for daily time-series tests passed."
+    print "iso8601_to_period_labels() for daily time-series tests passed."
 end function
 test_iso8601_to_period_label_dy()
 
 
 function void test_iso8601_to_period_label_mt (void)
-    print "Start with iso8601_to_period_label() matrix input."
+    print "Start with iso8601_to_period_labels() matrix input."
 
     print "monthly auto-detect"
     matrix m1 = {20230101, 20230201, 20230601}
-    strings got1 = iso8601_to_period_label(m1)
+    strings got1 = iso8601_to_period_labels(m1)
     strings exp1 = defarray("2023m1", "2023m2", "2023m6")
     loop i=1..nelem(exp1)
         assert(got1[i] == exp1[i])
@@ -684,7 +684,7 @@ function void test_iso8601_to_period_label_mt (void)
 
     print "quarterly auto-detect (months 1,4,7,10)"
     matrix m2 = {20230101, 20230401, 20230701, 20231001}
-    strings got2 = iso8601_to_period_label(m2)
+    strings got2 = iso8601_to_period_labels(m2)
     strings exp2 = defarray("2023q1", "2023q2", "2023q3", "2023q4")
     loop i=1..nelem(exp2)
         assert(got2[i] == exp2[i])
@@ -692,24 +692,24 @@ function void test_iso8601_to_period_label_mt (void)
 
     print "NA handling"
     matrix m3 = {20230101; NA; 20230601}
-    strings got3 = iso8601_to_period_label(m3)
+    strings got3 = iso8601_to_period_labels(m3)
     assert(got3[1] == "2023m1")
     assert(got3[2] == "")
     assert(got3[3] == "2023m6")
 
     print "explicit frequency: monthly (override auto-detect)"
-    strings got1m = iso8601_to_period_label(m1, "monthly")
+    strings got1m = iso8601_to_period_labels(m1, "monthly")
     loop i=1..nelem(exp1)
         assert(got1m[i] == exp1[i])
     endloop
 
     # explicit unsupported frequency: 'annual' -> expect empty labels
     matrix m4 = {20230101, 20240101}
-    strings got4 = iso8601_to_period_label(m4, "annual")
+    strings got4 = iso8601_to_period_labels(m4, "annual")
     assert(got4[1] == "")
     assert(got4[2] == "")
 
-    print "iso8601_to_period_label() matrix tests passed."
+    print "iso8601_to_period_labels() matrix tests passed."
 end function
 test_iso8601_to_period_label_mt()
 
