@@ -113,7 +113,7 @@ A bundle containing these elements:
 
 ---
 
-## iso8601_to_period_label(value, frequency[null], quiet[TRUE])
+## iso8601_to_period_labels(value, frequency[null], quiet[TRUE])
 
 *Arguments:*
 
@@ -125,32 +125,32 @@ A bundle containing these elements:
 
 - `strings`: an array of compact period labels. For monthly output labels are of the form `YYYYmM` (e.g. `2023m3`); for quarterly output labels are of the form `YYYYqQ` (e.g. `2023q1`). Missing or invalid inputs produce an empty string at the corresponding position.
 
-Notes:
+*Notes:*
 
 - Accepts scalar, series and (column) matrix inputs. For series the dataset periodicity ($pd for time series or $panelpd for panel) is consulted when `frequency` is `auto`.
 - Explicit `frequency` values take precedence over auto-detection.
 - The function returns empty strings for invalid months or unsupported frequencies; set `quiet=false` to see warnings.
 
-Examples:
+*Examples:*
 
 - Scalar monthly (auto-detect):
 
-  iso8601_to_period_label(20230315)  # -> {"2023m3"}
+  iso8601_to_period_labels(20230315)  # -> {"2023m3"}
 
 - Scalar explicit quarterly:
 
-  iso8601_to_period_label(20230401, "quarterly")  # -> {"2023q2"}
+  iso8601_to_period_labels(20230401, "quarterly")  # -> {"2023q2"}
 
 - Series / dataset-aware auto-detection (uses $pd or $panelpd):
 
   setobs 4 2020:1 --time-series
   series iso = $obsdate
-  strings labs = iso8601_to_period_label(iso)  # quarterly labels
+  strings labs = iso8601_to_period_labels(iso)  # quarterly labels
 
 - Matrix / column-vector input with NA handling:
 
   matrix m = {20230101; NA; 20230301}
-  strings labs = iso8601_to_period_label(m)  # -> {"2023m1", "", "2023m3"}
+  strings labs = iso8601_to_period_labels(m)  # -> {"2023m1", "", "2023m3"}
 
 
 # Changelog
@@ -158,7 +158,7 @@ Examples:
 ## v0.7, September 2025:
 
 - Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates()
-- Add new iso8601_to_period_label() function for converting ISO8601 dates to period labels (e.g., "2022q1" or "2022m9")
+- Add new iso8601_to_period_labels() function for converting ISO8601 dates to period labels (e.g., "2022q1" or "2022m9")
 - Help text as markdown document: improved formatting and structure
 - Raise min. Gretl version to 2023a
 - Bugfix: refactor datetime_components() function to improve variable declarations and add type safety
