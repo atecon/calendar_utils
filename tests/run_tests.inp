@@ -236,6 +236,7 @@ end function
 test_iso8601_to_dates()
 
 
+nulldata 10
 bundles Params = null
 Params = Params + _(first = 1999, second = 4, frequency = "quarterly", expected_err = FALSE)
 Params = Params + _(first = 999, second = 4, frequency = "quarterly", expected_err = TRUE)
@@ -248,9 +249,13 @@ function void test_check_frequency_ranges (const bundles P)
     print "Start testing function check_frequency_ranges()."
 
     loop foreach i P
+        printf("Testing with: first = %d, second = %d, frequency = %s\n",
+               P[i].first, P[i].second, P[i].frequency)
+
         # Given + When
         catch check_frequency_ranges(P[i].first, P[i].second, P[i].frequency)
         err = $error
+        printf("Error status: %d\n", err)
 
         # Then
         if err
