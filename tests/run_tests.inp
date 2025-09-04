@@ -518,13 +518,13 @@ end function
 test_iso8601_to_period_label_s()
 
 
-function void t_period_label_from_value_scal (void)
-    print "Start testing period_label_from_value() scalar input."
+function void test_period_label_from_value (void)
+    print "Start testing period_label_from_value() input."
 
     # monthly label
     scalar v1 = 20230315
     string r1 = period_label_from_value(v1, "monthly")
-    assert(r1 == "2023m1")
+    assert(r1 == "2023m3")
 
     # quarterly label
     string r1q = period_label_from_value(v1, "quarterly")
@@ -540,6 +540,6 @@ function void t_period_label_from_value_scal (void)
 
     print "period_label_from_value() scalar tests passed."
 end function
-t_period_label_from_value_scal()
+test_period_label_from_value()
 
 quit
