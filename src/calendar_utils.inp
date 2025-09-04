@@ -376,7 +376,6 @@ function matrix get_year_month (const matrix values "iso8601")
 end function
 
 
-# TODO: add support for panel or not?
 function strings iso8601_to_period_label (const numeric value "ISO8601 numeric date(s)",
                                           string frequency[null] "monthly|quarterly|auto (default)",
                                           const bool quiet[TRUE] "If TRUE, suppress warnings about unconvertible entries")
