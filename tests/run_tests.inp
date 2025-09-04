@@ -564,16 +564,45 @@ function void test_iso8601_to_period_label_ts (void)
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("2020q1", "2020q2", "2020q3", "", "2021q1")
-    strings got = iso8601_to_period_label(dates)
+    strings got1 = iso8601_to_period_label(dates)
+    strings got2 = iso8601_to_period_label(dates, "quarterly")
 
-    assert(nelem(got) == nelem(expected1))
-    loop foreach i got
-        assert(got[i] == expected1[i])
+    assert(nelem(got1) == nelem(expected1))
+    assert(nelem(got2) == nelem(expected1))
+    loop foreach i got1
+        assert(got1[i] == expected1[i])
+        assert(got2[i] == expected1[i])
     endloop
 
     print "iso8601_to_period_label() for time-series tests passed."
 end function
 test_iso8601_to_period_label_ts()
+
+
+nulldata 6 --preserve
+setobs 3 1:1 --stacked-time-series
+setobs 12 2020:01 --panel-time
+function void test_iso8601_to_period_label_ts (void)
+    print "Start with iso8601_to_period_label() time-series input."
+
+    # monthly
+    series dates = $obsdate
+    dates[5] = NA
+    strings expected1 = defarray("2020m1", "2020m2", "2020m3", "2020m1", "", "2020m3")
+    strings got1 = iso8601_to_period_label(dates)  # auto-detect
+    strings got2 = iso8601_to_period_label(dates, "monthly")
+
+    assert(nelem(got1) == nelem(expected1))
+    assert(nelem(got2) == nelem(expected1))
+    loop foreach i got1
+        assert(got1[i] == expected1[i])
+        assert(got2[i] == expected1[i])
+    endloop
+
+    print "iso8601_to_period_label() for time-series tests passed."
+end function
+test_iso8601_to_period_label_ts()
+
 
 
 nulldata 5 --preserve
