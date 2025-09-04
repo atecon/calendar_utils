@@ -41,7 +41,7 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 ---
 
 ```
-iso8601_to_string(value, target_format[null])
+iso8601_to_strings(value, target_format[null])
 ```
 
 *Arguments:*
@@ -62,7 +62,7 @@ iso8601_to_string(value, target_format[null])
 ---
 
 ```
-iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_strings()
 ```
 
 *Arguments:*
@@ -76,7 +76,7 @@ A string array (strings) with dates converted to extended ISO8601 format (`YYYY-
 ---
 
 ```
-numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_strings()
 ```
 
 *Arguments:*
@@ -180,7 +180,7 @@ strings labs = iso8601_to_period_labels(m)  # -> {"2023m1", "", "2023m3"}
 
 ## v0.7, September 2025:
 
-- Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates()
+- Add new iso8601_to_strings() function superseding numeric_to_extended_iso8601() and iso8601_to_dates()
 - Add new iso8601_to_period_labels() function for converting ISO8601 dates to period labels (e.g., "2022q1" or "2022m9")
 - Help text as markdown document: improved formatting and structure
 - Raise min. Gretl version to 2023a

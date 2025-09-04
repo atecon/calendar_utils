@@ -16,8 +16,8 @@ scalar iso4 = date_to_iso8601(date4, "%d/%m/%Y")
 
 print iso1 iso2 iso3 iso4
 
-# Cast numeric ISO8601 format back to extended ISO8601 date string (use iso8601_to_string)
-strings date1_cast_arr = iso8601_to_string(iso1)  # always returns a string array
+# Cast numeric ISO8601 format back to extended ISO8601 date string (use iso8601_to_strings)
+strings date1_cast_arr = iso8601_to_strings(iso1)  # always returns a string array
 string date1_cast = date1_cast_arr[1]             # cast to string
 
 print date1_cast_arr date1_cast
@@ -29,8 +29,8 @@ nulldata 3
 matrix mat = {20220101, 20220201, 20220103}'
 series input = mat
 
-strings dates_mat = iso8601_to_string(mat)
-strings dates_input = iso8601_to_string(input)
+strings dates_mat = iso8601_to_strings(mat)
+strings dates_input = iso8601_to_strings(input)
 
 # You get the same result for matrix and series inputs
 print dates_mat dates_input
