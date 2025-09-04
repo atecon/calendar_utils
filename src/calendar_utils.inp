@@ -334,11 +334,14 @@ end function
 
 
 function string period_label_from_value (const scalar v,
-                                         const string frequency)
+                                         const string frequency,
+                                         const bool quiet[TRUE])
     /* Helper: returns single label ("YYYYmM" or "YYYYqQ") or empty string on error. */
 
     if frequency != "monthly" && frequency != "quarterly"
-        printf("Warning: frequency '%s' not supported.\n", frequency)
+        if !quiet
+            printf("Warning: frequency '%s' not supported.\n", frequency)
+        endif
         return ""
     endif
 
@@ -362,6 +365,7 @@ function string period_label_from_value (const scalar v,
     endif
 end function
 
+
 function matrix get_year_month (const matrix values "iso8601")
     /* Extract year and month from numeric ISO8601 dates. */
 
@@ -370,5 +374,102 @@ function matrix get_year_month (const matrix values "iso8601")
     ret[,2] = int(values ./ 100) - (ret[,1] * 100)
 
     return ret
+end function
+
+
+# TODO: add quiet switch for supressing printouts
+# TODO: add support for panel or not?
+function strings iso8601_to_period_label (const numeric value "ISO8601 numeric date(s)",
+                                          string frequency[null] "monthly|quarterly|auto (default)",
+                                          const bool quiet[TRUE] "If TRUE, suppress warnings about unconvertible entries")
+    /* Convert numeric ISO8601 date(s) (YYYYMMDD) to compact period labels.
+       Accepts scalar, series or column-vector matrix.
+       - monthly   -> "YYYYmM"   (month without leading zero, e.g. 2023m3)
+       - quarterly -> "YYYYqQ"   (quarter number, e.g. 2023q1)
+       - auto (default) -> for series: use $pd (time-series) or $panelpd (panel);
+                           otherwise fall back to simple month-scan auto-detection.
+    */
+
+    strings Ret = array(0)
+    string type_value = typename(value)
+    string frequency = exists(frequency) ? tolower(strstrip(frequency)) : "auto"
+
+    if type_value == "scalar"
+        if frequency == "auto"
+            matrix ym = get_year_month({value})
+            scalar m = ym[1,2]
+            frequency = (m==1 || m==4 || m==7 || m==10) ? "quarterly" : "monthly"
+        endif
+        string lab = period_label_from_value(value, frequency, quiet)
+        if lab == "" && !quiet
+            printf("Warning: numeric value %d cannot be converted to period label.\n", value)
+        endif
+        Ret += lab
+        return Ret
+    endif
+
+    # Proceed with series and matrix typ
+    set skip_missing off
+    matrix mat = type_value == "series" ? {value} : vec(value)  # transform to column vector if matrix
+    set skip_missing on
+    scalar n_values = nelem(mat)
+    Ret = array(n_values)
+    if sum(!ok(mat)) > 0 && !quiet
+        print "Warning: Input series contains missing values. Missing entries will be returned as empty strings."
+    endif
+
+    scalar pd = 0        # default assumption: cross-sectional case
+    if type_value == "series"
+        if $datatype == 2
+            pd = $pd
+        elif $datatype == 3
+            pd = $panelpd
+        endif
+    endif
+
+    if frequency == "auto" && pd == 0 # periodicity not determined, yet
+        if pd == 4
+            frequency = "quarterly"
+        elif pd == 12
+            frequency = "monthly"
+        else
+            /* fallback: scan months present in data */
+            matrix seen = mshape(0, 12, 1)
+            loop i=1..n_values
+                scalar v = mat[i]
+                if v <= 0 || !ok(v)
+                    continue
+                endif
+                matrix ym = get_year_month({v})
+                scalar m = ym[2]
+                if m >=1 && m <= 12
+                    seen[m] = 1
+                endif
+            endloop
+            scalar cnt_q = seen[1] + seen[4] + seen[7] + seen[10]
+            scalar tot_seen = sum(seen)
+            frequency = (cnt_q == tot_seen && tot_seen > 0) ? "quarterly" : "monthly"
+        endif
+
+    else
+        string frequency = pd == 4 ? "quarterly" : pd == 12 ? "monthly" : frequency
+    endif
+
+    frequency = frequency == "auto" ? "unsupported" : frequency
+
+    # Actual conversion
+    loop i=1..nelem(Ret)
+        if mat[i] <= 0 || missing(mat[i])
+            Ret[i] = ""
+        else
+            Ret[i] = period_label_from_value(mat[i], frequency, quiet)
+            if Ret[i] == "" && !quiet
+                printf("Warning: entry %d at pos %d cannot be converted to period label.\n",
+                        mat[i], i)
+            endif
+        endif
+    endloop
+
+    return Ret
 end function
 
