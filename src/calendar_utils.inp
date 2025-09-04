@@ -330,3 +330,45 @@ function void get_components_before_20223 (const strings ts "Timestamp",
         endif
     endloop
 end function
+
+
+
+function string period_label_from_value (const scalar v,
+                                         const string frequency)
+    /* Helper: returns single label ("YYYYmM" or "YYYYqQ") or empty string on error. */
+
+    if frequency != "monthly" && frequency != "quarterly"
+        printf("Warning: frequency '%s' not supported.\n", frequency)
+        return ""
+    endif
+
+    if v <= 0
+        return ""
+    endif
+
+    matrix ym = get_year_month(v)
+    scalar y = int(ym[1,1])
+    scalar m = int(ym[1,2])
+
+    if m < 1 || m > 12
+        return ""
+    endif
+
+    if frequency == "quarterly"
+        scalar q = ceil(m / 3)
+        return sprintf("%dq%d", y, q)
+    else
+        return sprintf("%dm%d", y, m)
+    endif
+end function
+
+function matrix get_year_month (const matrix values "iso8601")
+    /* Extract year and month from numeric ISO8601 dates. */
+
+    matrix ret = mshape(NA, nelem(values), 2)
+    ret[,1] = int(values ./ 10000)
+    ret[,2] = int(values ./ 100) - (ret[,1] * 100)
+
+    return ret
+end function
+
