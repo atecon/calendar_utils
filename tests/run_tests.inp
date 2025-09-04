@@ -542,4 +542,25 @@ end function
 test_iso8601_to_period_label_s()
 
 
+nulldata 5 --preserve
+setobs 4 2020:1 --time-series
+function void test_iso8601_to_period_label_ts (void)
+    print "Start with iso8601_to_period_label() time-series input."
+
+    # monthly (auto-detect)
+    series dates = $obsdate
+    dates[$t2-1] = NA
+    strings expected1 = defarray("2020q1", "2020q2", "2020q3", "", "2021q1")
+    strings got = iso8601_to_period_label(dates)
+
+    assert(nelem(got) == nelem(expected1))
+    loop foreach i got
+        assert(got[i] == expected1[i])
+    endloop
+
+    print "iso8601_to_period_label() for time-series tests passed."
+end function
+test_iso8601_to_period_label_ts()
+
+
 quit
