@@ -603,7 +603,7 @@ function void test_iso8601_to_period_label_a (void)
         assert(got[i] == expected1[i])
     endloop
 
-    print "iso8601_to_period_label() for monthly time-series tests passed."
+    print "iso8601_to_period_label() for annual time-series tests passed."
 end function
 test_iso8601_to_period_label_a()
 
