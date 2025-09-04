@@ -490,6 +490,30 @@ function void test_datetime_components (const bundles P)
 end function
 test_datetime_components(Params)
 
+function void test_period_label_from_value (void)
+    print "Start testing period_label_from_value() input."
+
+    # monthly label
+    scalar v1 = 20230315
+    string r1 = period_label_from_value(v1, "monthly")
+    assert(r1 == "2023m3")
+
+    # quarterly label
+    string r1q = period_label_from_value(v1, "quarterly")
+    assert(r1q == "2023q1")
+
+    # invalid frequency -> expect empty string and a warning
+    string r2 = period_label_from_value(20230101, "foo")
+    assert(r2 == "")
+
+    # invalid month -> expect empty string
+    string r3 = period_label_from_value(20231401, "monthly")
+    assert(r3 == "")
+
+    print "period_label_from_value() scalar tests passed."
+end function
+test_period_label_from_value()
+
 
 function void test_iso8601_to_period_label_s (void)
     print "Start with iso8601_to_period_label() scalar input."
@@ -517,29 +541,5 @@ function void test_iso8601_to_period_label_s (void)
 end function
 test_iso8601_to_period_label_s()
 
-
-function void test_period_label_from_value (void)
-    print "Start testing period_label_from_value() input."
-
-    # monthly label
-    scalar v1 = 20230315
-    string r1 = period_label_from_value(v1, "monthly")
-    assert(r1 == "2023m3")
-
-    # quarterly label
-    string r1q = period_label_from_value(v1, "quarterly")
-    assert(r1q == "2023q1")
-
-    # invalid frequency -> expect empty string and a warning
-    string r2 = period_label_from_value(20230101, "foo")
-    assert(r2 == "")
-
-    # invalid month -> expect empty string
-    string r3 = period_label_from_value(20231401, "monthly")
-    assert(r3 == "")
-
-    print "period_label_from_value() scalar tests passed."
-end function
-test_period_label_from_value()
 
 quit
