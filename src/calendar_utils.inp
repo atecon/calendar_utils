@@ -103,16 +103,8 @@ function series dates_to_iso8601 (const series dates "Date string",
     series iso8601 = NA
     smpl dates --no-missing
 
-    if $version >= 20223
-        series ed = strpday(dates, date_format)
-        series iso8601 = isodate(ed)
-    endif
-
-    if $version < 20223
-        loop i=$t1..$t2
-            iso8601[i] = date_to_iso8601(dates[i], date_format)
-        endloop
-    endif
+    series ed = strpday(dates, date_format)
+    series iso8601 = isodate(ed)
 
     smpl full
 
