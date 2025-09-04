@@ -525,17 +525,30 @@ function void test_iso8601_to_period_label_s (void)
     assert(nelem(got1) == 1)
     assert(got1[1] == expected1)
 
-    # explicit quarterly
-    scalar date2 = 20230615
+    # quarterly (auto-detect)
+    scalar date2 = 20230401
     string expected2 = "2023q2"
-    strings got2 = iso8601_to_period_label(date2, "quarterly")
+    strings got2 = iso8601_to_period_label(date2)
+    assert(nelem(got2) == 1)
     assert(got2[1] == expected2)
 
-    # invalid month -> empty string
-    scalar date3 = 20231401
-    string expected3 = ""
-    strings got3 = iso8601_to_period_label(date3)
+    # explicit quarterly
+    scalar date3 = 20230615
+    string expected3 = "2023q2"
+    strings got3 = iso8601_to_period_label(date3, "quarterly")
     assert(got3[1] == expected3)
+
+    # invalid month -> empty string
+    scalar date4 = 20231401
+    string expected4 = ""
+    strings got4 = iso8601_to_period_label(date4)
+    assert(got4[1] == expected4)
+
+    # non-valid date (e.g. 20231340)
+    scalar date5 = 20231340
+    string expected5 = ""
+    strings got5 = iso8601_to_period_label(date5)
+    assert(got5[1] == expected5)
 
     print "iso8601_to_period_label() scalar tests passed."
 end function
@@ -561,6 +574,7 @@ function void test_iso8601_to_period_label_ts (void)
     print "iso8601_to_period_label() for time-series tests passed."
 end function
 test_iso8601_to_period_label_ts()
+
 
 
 quit
