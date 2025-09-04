@@ -19,11 +19,6 @@ https://github.com/atecon/calendar_utils
 
 A scalar integer in numeric ISO8601 format (YYYYMMDD) on success; zero (FALSE) on error. Internally this uses gretl's `strptime()` and `strftime()`.
 
-**Warning:** Prior to gretl 2021e, a bug in `strptime()` produced incorrect results if the input omitted the day of month. If you run gretl 2021d or earlier, ensure date strings include a day. Since 2021e it's acceptable to provide year-only or year+month values, but the fields in the date string must match `date_format`.
-
-Reference:
-https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
-
 ---
 
 ## dates_to_iso8601(dates, date_format)
