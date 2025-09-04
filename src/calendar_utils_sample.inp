@@ -80,3 +80,37 @@ series date = B.date
 series second1970 = B.second1970
 print date hour minute second1970 -o
 
+
+# Period label examples
+nulldata 6
+# matrix input (auto-detect)
+matrix m = {20230315, 20230615, 20231201}
+strings labs_m = iso8601_to_period_label(m)
+print "Matrix (auto-detect):"
+print labs_m
+
+# scalar input
+scalar s = 20230315
+strings labs_s = iso8601_to_period_label(s)
+print "Scalar (auto-detect):"
+print labs_s
+
+# explicit frequency: quarterly
+strings labs_q = iso8601_to_period_label(m, "quarterly")
+print "Matrix (explicit quarterly):"
+print labs_q
+
+# series / dataset-aware auto-detection
+nulldata 8
+setobs 4 2020:1 --time-series
+series iso = $obsdate
+strings labs_ts = iso8601_to_period_label(iso)
+print "Series (dataset-aware):"
+print labs_ts
+
+# NA handling
+matrix m2 = {20230101; NA; 20230301}
+strings labs_m2 = iso8601_to_period_label(m2)
+print "Matrix with NA:"
+print labs_m2
+
