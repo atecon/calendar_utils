@@ -158,20 +158,38 @@ Examples:
   strings labs = iso8601_to_period_label(m)  # -> {"2023m1", "", "2023m3"}
 
 
-## Changelog
+# Changelog
 
-- v0.7, September 2025:
-    - Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates()
-    - Add new iso8601_to_period_label() function for converting ISO8601 dates to period labels (e.g., "2022q1" or "2022m9")
-    - Help text as markdown document: improved formatting and structure
-    - Raise min. Gretl version to 2023a
-    - Bugfix: refactor datetime_components() function to improve variable declarations and add type safety
-- v0.6, January 2023: Internal improvements
-- v0.5, December 2022:
-  - Add `datetime_components()`
-  - Remove `create_iso8601_series()` and add guidance for `setobs` usage
-  - Improve error handling notes for `iso8601_to_dates()`; both `dates_to_iso8601()` and `date_to_iso8601()` return zero on parse error
-- v0.4, January 2022: Added `iso8601_to_dates()`
-- v0.3, October 2021: Improved help text and added `gdate_to_iso8601()`
-- v0.2, October 2020: Added `numeric_to_extended_iso8601()`
-- v0.1, October 2020: Initial release
+## v0.7, September 2025:
+
+- Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates()
+- Add new iso8601_to_period_label() function for converting ISO8601 dates to period labels (e.g., "2022q1" or "2022m9")
+- Help text as markdown document: improved formatting and structure
+- Raise min. Gretl version to 2023a
+- Bugfix: refactor datetime_components() function to improve variable declarations and add type safety
+
+## v0.6, January 2023:
+
+- Internal improvements
+
+## v0.5, December 2022:
+
+- Add `datetime_components()`
+- Remove `create_iso8601_series()` and add guidance for `setobs` usage
+- Improve error handling notes for `iso8601_to_dates()`; both `dates_to_iso8601()` and `date_to_iso8601()` return zero on parse error
+
+## v0.4, January 2022:
+
+- Added `iso8601_to_dates()`
+
+## v0.3, October 2021:
+
+- Improved help text and added `gdate_to_iso8601()`
+
+## v0.2, October 2020:
+
+- Added `numeric_to_extended_iso8601()`
+
+## v0.1, October 2020:
+
+- Initial release
