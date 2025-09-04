@@ -576,5 +576,48 @@ end function
 test_iso8601_to_period_label_ts()
 
 
+nulldata 5 --preserve
+setobs 1 2020 --time-series  # annual data
+function void test_iso8601_to_period_label_an (void)
+    print "Start with iso8601_to_period_label() annual time-series input."
+
+    # monthly (auto-detect)
+    series dates = $obsdate
+    dates[$t2-1] = NA
+    strings expected1 = defarray("2020q1", "2021q1", "2022q1", "", "2024q1")
+    strings got = iso8601_to_period_label(dates)
+
+    assert(nelem(got) == nelem(expected1))
+    loop foreach i got
+        assert(got[i] == expected1[i])
+    endloop
+
+    print "iso8601_to_period_label() for time-series tests passed."
+end function
+test_iso8601_to_period_label_an()
+
+
+nulldata 7 --preserve
+setobs 7 2020-01-01 --time-series  # annual data
+function void test_iso8601_to_period_label_dy (void)
+    print "Start with iso8601_to_period_label() daily time-series input."
+
+    # monthly (auto-detect)
+    series dates = $obsdate
+    dates[$t2-1] = NA
+    strings expected1 = defarray("2020q1", "2020q1", "2020q1", "2020q1",
+                                "2020q1", "", "2020q1")
+    strings got = iso8601_to_period_label(dates)
+    print got
+
+    assert(nelem(got) == nelem(expected1))
+    loop foreach i got
+        assert(got[i] == expected1[i])
+    endloop
+
+    print "iso8601_to_period_label() for time-series tests passed."
+end function
+test_iso8601_to_period_label_dy()
+
 
 quit
