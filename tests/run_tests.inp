@@ -578,23 +578,34 @@ test_iso8601_to_period_label_ts()
 
 nulldata 5 --preserve
 setobs 1 2020 --time-series  # annual data
-function void test_iso8601_to_period_label_an (void)
+function void test_iso8601_to_period_label_a (void)
     print "Start with iso8601_to_period_label() annual time-series input."
 
-    # monthly (auto-detect)
+    print "impose quarterly frequency"
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("2020q1", "2021q1", "2022q1", "", "2024q1")
-    strings got = iso8601_to_period_label(dates)
+    strings got = iso8601_to_period_label(dates, "quarterly")
 
     assert(nelem(got) == nelem(expected1))
     loop foreach i got
         assert(got[i] == expected1[i])
     endloop
 
-    print "iso8601_to_period_label() for time-series tests passed."
+    print "auto-detect -> As freq. is not supported, returns empty strings"
+    series dates = $obsdate
+    dates[$t2-1] = NA
+    strings expected1 = defarray("", "", "", "", "")
+    strings got = iso8601_to_period_label(dates, "auto")
+
+    assert(nelem(got) == nelem(expected1))
+    loop foreach i got
+        assert(got[i] == expected1[i])
+    endloop
+
+    print "iso8601_to_period_label() for monthly time-series tests passed."
 end function
-test_iso8601_to_period_label_an()
+test_iso8601_to_period_label_a()
 
 
 nulldata 7 --preserve
@@ -602,22 +613,76 @@ setobs 7 2020-01-01 --time-series  # annual data
 function void test_iso8601_to_period_label_dy (void)
     print "Start with iso8601_to_period_label() daily time-series input."
 
-    # monthly (auto-detect)
+    print "impose quarterly frequency"
     series dates = $obsdate
     dates[$t2-1] = NA
     strings expected1 = defarray("2020q1", "2020q1", "2020q1", "2020q1",
                                 "2020q1", "", "2020q1")
-    strings got = iso8601_to_period_label(dates)
-    print got
+    strings got = iso8601_to_period_label(dates, "quarterly")
 
     assert(nelem(got) == nelem(expected1))
     loop foreach i got
         assert(got[i] == expected1[i])
     endloop
 
-    print "iso8601_to_period_label() for time-series tests passed."
+
+    print "auto-detect -> As freq. is not supported, returns empty strings"
+    series dates = $obsdate
+    dates[$t2-1] = NA
+    strings expected1 = defarray("", "", "", "", "", "", "")
+    strings got = iso8601_to_period_label(dates)
+
+    assert(nelem(got) == nelem(expected1))
+    loop foreach i got
+        assert(got[i] == expected1[i])
+    endloop
+
+    print "iso8601_to_period_label() for daily time-series tests passed."
 end function
 test_iso8601_to_period_label_dy()
+
+
+function void test_iso8601_to_period_label_mt (void)
+    print "Start with iso8601_to_period_label() matrix input."
+
+    print "monthly auto-detect"
+    matrix m1 = {20230101, 20230201, 20230601}
+    strings got1 = iso8601_to_period_label(m1)
+    strings exp1 = defarray("2023m1", "2023m2", "2023m6")
+    loop i=1..nelem(exp1)
+        assert(got1[i] == exp1[i])
+    endloop
+
+    print "quarterly auto-detect (months 1,4,7,10)"
+    matrix m2 = {20230101, 20230401, 20230701, 20231001}
+    strings got2 = iso8601_to_period_label(m2)
+    strings exp2 = defarray("2023q1", "2023q2", "2023q3", "2023q4")
+    loop i=1..nelem(exp2)
+        assert(got2[i] == exp2[i])
+    endloop
+
+    print "NA handling"
+    matrix m3 = {20230101; NA; 20230601}
+    strings got3 = iso8601_to_period_label(m3)
+    assert(got3[1] == "2023m1")
+    assert(got3[2] == "")
+    assert(got3[3] == "2023m6")
+
+    print "explicit frequency: monthly (override auto-detect)"
+    strings got1m = iso8601_to_period_label(m1, "monthly")
+    loop i=1..nelem(exp1)
+        assert(got1m[i] == exp1[i])
+    endloop
+
+    # explicit unsupported frequency: 'annual' -> expect empty labels
+    matrix m4 = {20230101, 20240101}
+    strings got4 = iso8601_to_period_label(m4, "annual")
+    assert(got4[1] == "")
+    assert(got4[2] == "")
+
+    print "iso8601_to_period_label() matrix tests passed."
+end function
+test_iso8601_to_period_label_mt()
 
 
 quit
