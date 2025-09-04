@@ -8,7 +8,9 @@ https://github.com/atecon/calendar_utils
 
 # Public functions
 
-## date_to_iso8601(date, date_format)
+```
+date_to_iso8601(date, date_format)
+```
 
 *Arguments:*
 
@@ -21,7 +23,9 @@ A scalar integer in numeric ISO8601 format (YYYYMMDD) on success; zero (FALSE) o
 
 ---
 
-## dates_to_iso8601(dates, date_format)
+```
+dates_to_iso8601(dates, date_format)
+```
 
 *Arguments:*
 
@@ -36,7 +40,9 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 
 ---
 
-## iso8601_to_string(value, target_format[null])
+```
+iso8601_to_string(value, target_format[null])
+```
 
 *Arguments:*
 
@@ -55,7 +61,9 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 
 ---
 
-## iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+```
+iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+```
 
 *Arguments:*
 
@@ -67,7 +75,9 @@ A string array (strings) with dates converted to extended ISO8601 format (`YYYY-
 
 ---
 
-## numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+```
+numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+```
 
 *Arguments:*
 
@@ -79,7 +89,9 @@ A date string in extended ISO8601 format (`YYYY-MM-DD`) on success; an empty str
 
 ---
 
-## gdate_to_iso8601(date, frequency[null])
+```
+gdate_to_iso8601(date, frequency[null])
+```
 
 *Arguments:*
 
@@ -92,7 +104,9 @@ Numeric ISO8601 integer (YYYYMMDD) for monthly or quarterly input. Uses gretl's 
 
 ---
 
-## datetime_components(ts, format[null])
+```
+datetime_components(ts, format[null])
+```
 
 Extract date/time components from datetime (timestamp) strings.
 
@@ -113,7 +127,9 @@ A bundle containing these elements:
 
 ---
 
-## iso8601_to_period_labels(value, frequency[null], quiet[TRUE])
+```
+iso8601_to_period_labels(value, frequency[null], quiet[TRUE])
+```
 
 *Arguments:*
 
@@ -135,23 +151,30 @@ A bundle containing these elements:
 
 - Scalar monthly (auto-detect):
 
-  iso8601_to_period_labels(20230315)  # -> {"2023m3"}
+```
+iso8601_to_period_labels(20230315)  # -> {"2023m3"}
+```
 
 - Scalar explicit quarterly:
 
-  iso8601_to_period_labels(20230401, "quarterly")  # -> {"2023q2"}
+```
+iso8601_to_period_labels(20230401, "quarterly")  # -> {"2023q2"}
+```
 
 - Series / dataset-aware auto-detection (uses $pd or $panelpd):
 
-  setobs 4 2020:1 --time-series
-  series iso = $obsdate
-  strings labs = iso8601_to_period_labels(iso)  # quarterly labels
+```
+setobs 4 2020:1 --time-series
+series iso = $obsdate
+strings labs = iso8601_to_period_labels(iso)  # quarterly labels
+```
 
 - Matrix / column-vector input with NA handling:
 
-  matrix m = {20230101; NA; 20230301}
-  strings labs = iso8601_to_period_labels(m)  # -> {"2023m1", "", "2023m3"}
-
+```
+matrix m = {20230101; NA; 20230301}
+strings labs = iso8601_to_period_labels(m)  # -> {"2023m1", "", "2023m3"}
+```
 
 # Changelog
 

@@ -8,7 +8,9 @@ https://github.com/atecon/calendar_utils
 
 # Public functions
 
-## date_to_iso8601(date, date_format)
+```
+date_to_iso8601(date, date_format)
+```
 
 *Arguments:*
 
@@ -19,14 +21,11 @@ https://github.com/atecon/calendar_utils
 
 A scalar integer in numeric ISO8601 format (YYYYMMDD) on success; zero (FALSE) on error. Internally this uses gretl's `strptime()` and `strftime()`.
 
-**Warning:** Prior to gretl 2021e, a bug in `strptime()` produced incorrect results if the input omitted the day of month. If you run gretl 2021d or earlier, ensure date strings include a day. Since 2021e it's acceptable to provide year-only or year+month values, but the fields in the date string must match `date_format`.
-
-Reference:
-https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
-
 ---
 
-## dates_to_iso8601(dates, date_format)
+```
+dates_to_iso8601(dates, date_format)
+```
 
 *Arguments:*
 
@@ -41,7 +40,9 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 
 ---
 
-## iso8601_to_string(value, target_format[null])
+```
+iso8601_to_string(value, target_format[null])
+```
 
 *Arguments:*
 
@@ -60,7 +61,9 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 
 ---
 
-## iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+```
+iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+```
 
 *Arguments:*
 
@@ -72,7 +75,9 @@ A string array (strings) with dates converted to extended ISO8601 format (`YYYY-
 
 ---
 
-## numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+```
+numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+```
 
 *Arguments:*
 
@@ -84,7 +89,9 @@ A date string in extended ISO8601 format (`YYYY-MM-DD`) on success; an empty str
 
 ---
 
-## gdate_to_iso8601(date, frequency[null])
+```
+gdate_to_iso8601(date, frequency[null])
+```
 
 *Arguments:*
 
@@ -97,7 +104,9 @@ Numeric ISO8601 integer (YYYYMMDD) for monthly or quarterly input. Uses gretl's 
 
 ---
 
-## datetime_components(ts, format[null])
+```
+datetime_components(ts, format[null])
+```
 
 Extract date/time components from datetime (timestamp) strings.
 
@@ -118,7 +127,9 @@ A bundle containing these elements:
 
 ---
 
-## iso8601_to_period_label(value, frequency[null], quiet[TRUE])
+```
+iso8601_to_period_labels(value, frequency[null], quiet[TRUE])
+```
 
 *Arguments:*
 
@@ -130,40 +141,47 @@ A bundle containing these elements:
 
 - `strings`: an array of compact period labels. For monthly output labels are of the form `YYYYmM` (e.g. `2023m3`); for quarterly output labels are of the form `YYYYqQ` (e.g. `2023q1`). Missing or invalid inputs produce an empty string at the corresponding position.
 
-Notes:
+*Notes:*
 
 - Accepts scalar, series and (column) matrix inputs. For series the dataset periodicity ($pd for time series or $panelpd for panel) is consulted when `frequency` is `auto`.
 - Explicit `frequency` values take precedence over auto-detection.
 - The function returns empty strings for invalid months or unsupported frequencies; set `quiet=false` to see warnings.
 
-Examples:
+*Examples:*
 
 - Scalar monthly (auto-detect):
 
-  iso8601_to_period_label(20230315)  # -> {"2023m3"}
+```
+iso8601_to_period_labels(20230315)  # -> {"2023m3"}
+```
 
 - Scalar explicit quarterly:
 
-  iso8601_to_period_label(20230401, "quarterly")  # -> {"2023q2"}
+```
+iso8601_to_period_labels(20230401, "quarterly")  # -> {"2023q2"}
+```
 
 - Series / dataset-aware auto-detection (uses $pd or $panelpd):
 
-  setobs 4 2020:1 --time-series
-  series iso = $obsdate
-  strings labs = iso8601_to_period_label(iso)  # quarterly labels
+```
+setobs 4 2020:1 --time-series
+series iso = $obsdate
+strings labs = iso8601_to_period_labels(iso)  # quarterly labels
+```
 
 - Matrix / column-vector input with NA handling:
 
-  matrix m = {20230101; NA; 20230301}
-  strings labs = iso8601_to_period_label(m)  # -> {"2023m1", "", "2023m3"}
-
+```
+matrix m = {20230101; NA; 20230301}
+strings labs = iso8601_to_period_labels(m)  # -> {"2023m1", "", "2023m3"}
+```
 
 # Changelog
 
 ## v0.7, September 2025:
 
 - Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates()
-- Add new iso8601_to_period_label() function for converting ISO8601 dates to period labels (e.g., "2022q1" or "2022m9")
+- Add new iso8601_to_period_labels() function for converting ISO8601 dates to period labels (e.g., "2022q1" or "2022m9")
 - Help text as markdown document: improved formatting and structure
 - Raise min. Gretl version to 2023a
 - Bugfix: refactor datetime_components() function to improve variable declarations and add type safety
