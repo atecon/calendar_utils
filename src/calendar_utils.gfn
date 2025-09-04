@@ -1,0 +1,854 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gretl-functions>
+<gretl-function-package name="calendar_utils" no-data-ok="true" minver="2023a">
+<author email="atecon@posteo.de">Artur Tarassow</author>
+<version>0.7</version>
+<date>2025-09-04</date>
+<description>Collection of useful date time related tools</description>
+<tags>C88</tags>
+<help filename="calendar_utils_help.md">
+# Calendar Utilities
+
+Collection of date/time related tools for convenience when working with date strings and date string series in gretl.
+
+Most functions are small wrappers around gretl's built-in strptime()/strftime() utilities and other date helpers. Please ask questions and report bugs on the gretl mailing list or by creating an issue on the project repository:
+
+https://github.com/atecon/calendar_utils
+
+# Public functions
+
+## date_to_iso8601(date, date_format)
+
+*Arguments:*
+
+- `date`: string — a date string
+- `date_format`: string — format of `date`, e.g. `%Y-%m-%d`
+
+*Return:*
+
+A scalar integer in numeric ISO8601 format (YYYYMMDD) on success; zero (FALSE) on error. Internally this uses gretl's `strptime()` and `strftime()`.
+
+**Warning:** Prior to gretl 2021e, a bug in `strptime()` produced incorrect results if the input omitted the day of month. If you run gretl 2021d or earlier, ensure date strings include a day. Since 2021e it's acceptable to provide year-only or year+month values, but the fields in the date string must match `date_format`.
+
+Reference:
+https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/6ENWKDGSYB32ZFKHENLPFJSS3X22JGYB/
+
+---
+
+## dates_to_iso8601(dates, date_format)
+
+*Arguments:*
+
+- `dates`: series — a series of date strings
+- `date_format`: string — format of the entries in `dates`, e.g. `%Y-%m-%d`
+
+*Return:*
+
+A series of numeric ISO8601 dates (YYYYMMDD). For each entry, the function returns the numeric date if casting succeeds and zero (FALSE) on error.
+
+See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in older gretl versions.
+
+---
+
+## iso8601_to_string(value, target_format[null])
+
+*Arguments:*
+
+- `value`: numeric — numeric ISO8601 date (scalar, series, or column-vector matrix). Examples: `20200903`, `19900101`.
+- `target_format`: string (optional) — target strftime-style format for the output strings. Default: `%Y-%m-%d`.
+
+*Return:*
+
+- `strings`: an array with the date(s) formatted according to `target_format`.
+- Invalid or unparsable inputs produce an empty string at the corresponding position and a warning may be printed.
+
+*Notes:*
+
+- Accepts and handles scalar, series and column-vector matrix inputs. For series, missing values are flagged and empty strings are returned for problematic entries.
+- This function **supersedes older helpers** such as `numeric_to_extended_iso8601()` and `iso8601_to_dates()` by providing flexible output formatting and unified handling of input types.
+
+---
+
+## iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+
+*Arguments:*
+
+- `dates`: series — series of numeric ISO8601 dates
+
+*Return:*
+
+A string array (strings) with dates converted to extended ISO8601 format (`YYYY-MM-DD`) by default. Missing or invalid input entries are returned as empty strings. This function is the inverse of `dates_to_iso8601()` for common cases.
+
+---
+
+## numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+
+*Arguments:*
+
+- `date`: int — numeric ISO8601 date in format `YYYYMMDD`
+
+*Return:*
+
+A date string in extended ISO8601 format (`YYYY-MM-DD`) on success; an empty string on invalid input.
+
+---
+
+## gdate_to_iso8601(date, frequency[null])
+
+*Arguments:*
+
+- `date`: string — date string in gretl formats such as `%Y:%m` or `%Y.%m`
+- `frequency`: string (optional) — either `monthly` or `quarterly`. If omitted, the function attempts to determine periodicity from the active dataset.
+
+*Return:*
+
+Numeric ISO8601 integer (YYYYMMDD) for monthly or quarterly input. Uses gretl's `strptime()`/`strftime()` internally.
+
+---
+
+## datetime_components(ts, format[null])
+
+Extract date/time components from datetime (timestamp) strings.
+
+*Arguments:*
+
+- `ts`: strings — array of datetime strings (timestamps)
+- `format`: string, optional — format of the timestamp; default is `%Y-%m-%d %H:%M`
+
+*Return:*
+
+A bundle containing these elements:
+
+- `date`: strings — dates in extended ISO8601 (`%Y-%m-%d`)
+- `second1970`: matrix — column vector of seconds since 1970 (UTC), per gretl's `strptime()` semantics
+- `time`: strings — time strings in `%H:%M` or `%H:%M:%s` when seconds are present
+- `year`, `month`, `day`, `hour`, `minute`: matrices — column vectors with the respective numeric components
+- `second`: matrix — column vector with seconds if available
+
+---
+
+## iso8601_to_period_label(value, frequency[null], quiet[TRUE])
+
+*Arguments:*
+
+- `value`: numeric — scalar, series, or column-vector matrix holding ISO8601 integers (YYYYMMDD)
+- `frequency`: string (optional) — one of `monthly`, `quarterly`, or `auto` (default). When `auto` the function attempts to infer periodicity: for series it uses the dataset frequency ($pd or $panelpd); otherwise a month-scan heuristic is used. An explicit `monthly` or `quarterly` value overrides auto-detection.
+- `quiet`: boolean (optional, default = TRUE) — if FALSE, emit warnings for entries that cannot be converted.
+
+*Return:*
+
+- `strings`: an array of compact period labels. For monthly output labels are of the form `YYYYmM` (e.g. `2023m3`); for quarterly output labels are of the form `YYYYqQ` (e.g. `2023q1`). Missing or invalid inputs produce an empty string at the corresponding position.
+
+Notes:
+
+- Accepts scalar, series and (column) matrix inputs. For series the dataset periodicity ($pd for time series or $panelpd for panel) is consulted when `frequency` is `auto`.
+- Explicit `frequency` values take precedence over auto-detection.
+- The function returns empty strings for invalid months or unsupported frequencies; set `quiet=false` to see warnings.
+
+Examples:
+
+- Scalar monthly (auto-detect):
+
+  iso8601_to_period_label(20230315)  # -&gt; {&quot;2023m3&quot;}
+
+- Scalar explicit quarterly:
+
+  iso8601_to_period_label(20230401, &quot;quarterly&quot;)  # -&gt; {&quot;2023q2&quot;}
+
+- Series / dataset-aware auto-detection (uses $pd or $panelpd):
+
+  setobs 4 2020:1 --time-series
+  series iso = $obsdate
+  strings labs = iso8601_to_period_label(iso)  # quarterly labels
+
+- Matrix / column-vector input with NA handling:
+
+  matrix m = {20230101; NA; 20230301}
+  strings labs = iso8601_to_period_label(m)  # -&gt; {&quot;2023m1&quot;, &quot;&quot;, &quot;2023m3&quot;}
+
+
+# Changelog
+
+## v0.7, September 2025:
+
+- Add new iso8601_to_string() function superseding numeric_to_extended_iso8601() and iso8601_to_dates()
+- Add new iso8601_to_period_label() function for converting ISO8601 dates to period labels (e.g., &quot;2022q1&quot; or &quot;2022m9&quot;)
+- Help text as markdown document: improved formatting and structure
+- Raise min. Gretl version to 2023a
+- Bugfix: refactor datetime_components() function to improve variable declarations and add type safety
+
+## v0.6, January 2023:
+
+- Internal improvements
+
+## v0.5, December 2022:
+
+- Add `datetime_components()`
+- Remove `create_iso8601_series()` and add guidance for `setobs` usage
+- Improve error handling notes for `iso8601_to_dates()`; both `dates_to_iso8601()` and `date_to_iso8601()` return zero on parse error
+
+## v0.4, January 2022:
+
+- Added `iso8601_to_dates()`
+
+## v0.3, October 2021:
+
+- Improved help text and added `gdate_to_iso8601()`
+
+## v0.2, October 2020:
+
+- Added `numeric_to_extended_iso8601()`
+
+## v0.1, October 2020:
+
+- Initial release
+</help>
+<gretl-function name="dates_to_iso8601" type="series">
+ <params count="2">
+  <param name="dates" type="series" const="true">
+<description>Date string</description>
+  </param>
+  <param name="date_format" type="string" const="true">
+<description>e.g. %Y-%m-%d</description>
+  </param>
+ </params>
+<code>/* Transforms a string-valued dates series to the numeric iso8601 format. Works for panel, time-series and cross-sectional data.
+return: Series holding cast values of 'dates' in the numeric ISO8601
+format (YYYYMMDD) in case of no error at the i-th entry. In case of an
+error at the i-th entry, return zero (FALSE).*/
+
+series iso8601 = NA
+smpl dates --no-missing
+
+if $version &gt;= 20223
+  series ed = strpday(dates, date_format)
+  series iso8601 = isodate(ed)
+endif
+
+if $version &lt; 20223
+  loop i=$t1..$t2
+    iso8601[i] = date_to_iso8601(dates[i], date_format)
+  endloop
+endif
+
+smpl full
+
+return iso8601
+</code>
+</gretl-function>
+<gretl-function name="date_to_iso8601" type="scalar">
+ <params count="2">
+  <param name="date" type="string" const="true">
+<description>Date string</description>
+  </param>
+  <param name="date_format" type="string" const="true">
+<description>e.g. %Y-%m-%d</description>
+  </param>
+ </params>
+<code>/* Transforms a date string to the numeric ISO8601 format.
+return: int, Numeric ISO8601 date if no error, otherwise zero (FALSE). */
+
+if $version &lt; 20223
+  catch scalar ed = strpday(dates, date_format)
+else
+  catch scalar seconds = strptime(date, date_format)
+endif
+
+if $error
+  printf &quot;\nERROR: Either no valid date string or date format were passed.\n&quot;
+  return FALSE
+endif
+
+if $version &lt; 20223
+  return isodate(ed)
+else
+  return atof(strftime(seconds, &quot;%Y%m%d&quot;))
+endif
+</code>
+</gretl-function>
+<gretl-function name="numeric_to_extended_iso8601" type="string">
+ <params count="1">
+  <param name="value" type="int" const="true">
+<description>ISO8601 numeric date value</description>
+  </param>
+ </params>
+<code>/* Cast numeric ISO8601 date (YYYYMMDD) to extended ISO8601 date string.
+In case of an error, an empty string is returned. */
+
+catch string date = isodate(epochday(value), 1)
+if $error
+  sprintf(&quot;ERROR: Numeric value %d cannot be cast to date string.&quot;, value)
+  return &quot;&quot;
+endif
+
+return date
+</code>
+</gretl-function>
+<gretl-function name="gdate_to_iso8601" type="scalar">
+ <params count="2">
+  <param name="date" type="string">
+<description>Date string</description>
+  </param>
+  <param name="frequency" type="string" optional="true">
+<description>Frequency of observation</description>
+  </param>
+ </params>
+<code>/* This function supports monthly and quarterly date strings as used and accepted by gretl itself; basically only patterns like &quot;1999:3&quot; or &quot;1999.3&quot;.
+
+return: int, Date string transformed to an integer representing the numeric ISO8601 format. */
+
+date = strstrip(strsub(date, &quot;.&quot;, &quot;:&quot;))
+if exists(frequency)
+  frequency = strstrip(tolower(frequency))
+else
+  string frequency = get_frequency_label()
+endif
+
+scalar isok = is_valid_date_delimiter(date)
+errorif(!isok, &quot;Not a recognized gretl date string. Must be of format '%d:%d' or '%d.%d'.&quot;)
+
+strings parts = strsplit(date, &quot;:&quot;)
+errorif(nelem(parts) != 2, &quot;Invalid date string input. Must be of format '%d:%d' or '%d.%d'&quot;)
+
+return get_iso_date(parts, frequency)
+</code>
+</gretl-function>
+<gretl-function name="iso8601_to_dates" type="strings">
+ <params count="1">
+  <param name="dates" type="series" const="true">
+<description>Num. ISO8601 date</description>
+  </param>
+ </params>
+<code>/* Based on a series in numeric iso8601 format, an array of strings in the extended ISO8601 format (&quot;YYYY-MM-DD&quot;) is returned.
+Return empty string at the i-th position in case the i-th 'dates' entry
+has not the right format. */
+
+strings ret = array($nobs)
+
+loop i=1..nelem(ret)
+  ret[i] = numeric_to_extended_iso8601(dates[i])
+endloop
+
+return ret
+</code>
+</gretl-function>
+<gretl-function name="datetime_components" type="bundle">
+ <params count="2">
+  <param name="ts" type="strings" const="true">
+<description>Timestamp</description>
+  </param>
+  <param name="format" type="string" optional="true">
+<description>Format timestamp, optional</description>
+  </param>
+ </params>
+<code>/* Extract the date and time components of a datetime string, usually in
+the format &quot;%Y-%m-%d %H:%M&quot;. If a seconds, '%S' are included, these
+are considered, too. */
+
+bundle self
+
+string self.format = exists(format) ? format : &quot;%Y-%m-%d %H:%M&quot;
+
+strings self.date = array(nelem(ts))
+matrix self.year = mshape(NA, nelem(ts))
+matrix self.month = mshape(NA, nelem(ts))
+matrix self.day = mshape(NA, nelem(ts))
+strings self.time = array(nelem(ts))
+matrix self.hour = mshape(NA, nelem(ts))
+matrix self.minute = mshape(NA, nelem(ts))
+matrix self.second1970 = mshape(NA, nelem(ts))
+if instring(self.format, &quot;%S&quot;)
+  matrix self.second = mshape(NA, nelem(ts))
+endif
+
+if $version &lt;= 20222
+  get_components_before_20223(ts, &amp;self)
+else
+  get_components_since_20223(ts, &amp;self)
+endif
+
+return self
+</code>
+</gretl-function>
+<gretl-function name="iso8601_to_string" type="strings">
+ <params count="2">
+  <param name="value" type="numeric" const="true">
+<description>ISO8601 numeric date value</description>
+  </param>
+  <param name="target_format" type="string" optional="true"/>
+ </params>
+<code>/* Converts numeric ISO8601 date(s) (YYYYMMDD) to extended ISO8601 date string(s).
+Accepts scalar, series, or column vector matrix as input.
+Returns a bundle with a 'result' member containing the string(s).
+In case of error, returns empty string array (strings) at the corresponding position(s).
+
+Interesting formats are:
+- &quot;%Ym%m&quot;, e.g. 1990m01
+- &quot;%Y%m%d&quot;, e.g. 20200903
+- &quot;%d-%m-%Y&quot;, e.g. 03-09-2020
+- &quot;%d/%m/%Y&quot;, e.g. 03/09/2020
+- &quot;%Y&quot;, e.g. 1984
+*/
+
+strings Ret = array(0)
+string type_value = typename(value)
+string target_format = !exists(target_format) ? &quot;%Y-%m-%d&quot; : target_format
+
+if type_value == &quot;scalar&quot;
+  catch string ret = strfday(epochday(value), target_format)
+  if $error
+    printf(&quot;Warning: Numeric value %d cannot be cast to date string in format '%s'.\n&quot;, value, target_format)
+    Ret += &quot;&quot;  # Return an empty string
+  else
+    Ret += ret
+  endif
+  return Ret
+
+elif type_value == &quot;series&quot;
+  if sum(missing(value)) &gt; 0
+    print &quot;Warning: Input series contains missing values. Cannot convert to date strings.&quot;
+    # strfday() does not handle series with missing values
+    Ret += &quot;&quot;  # Return an empty string
+    return Ret
+  endif
+
+  series f = strfday(epochday(value), target_format)
+  strings Ret = f
+  if $error
+    printf(&quot;Warning: Series value cannot be cast to date string in format '%s'.\n&quot;, target_format)
+    Ret += &quot;&quot;  # Return an empty string
+  endif
+  return Ret
+
+elif type_value == &quot;matrix&quot;
+  matrix mat = vec(value)  # transform to column vector
+  scalar n_values = nelem(mat)
+  strings Ret = array(n_values)
+
+  loop i=1..n_values
+    catch string date = strfday(epochday(mat[i]), target_format)
+    Ret[i] = $error ? &quot;&quot; : date
+  endloop
+  return Ret
+else
+  errorif(TRUE, &quot;Input must be scalar, series, or column vector matrix.&quot;)
+endif
+
+return out
+</code>
+</gretl-function>
+<gretl-function name="iso8601_to_period_label" type="strings">
+ <params count="3">
+  <param name="value" type="numeric" const="true">
+<description>ISO8601 numeric date(s)</description>
+  </param>
+  <param name="frequency" type="string" optional="true">
+<description>monthly|quarterly|auto (default)</description>
+  </param>
+  <param name="quiet" type="bool" default="1" const="true">
+<description>If TRUE, suppress warnings about unconvertible entries</description>
+  </param>
+ </params>
+<code>/* Convert numeric ISO8601 date(s) (YYYYMMDD) to compact period labels.
+Accepts scalar, series or column-vector matrix.
+- monthly   -&gt; &quot;YYYYmM&quot;   (month without leading zero, e.g. 2023m3)
+- quarterly -&gt; &quot;YYYYqQ&quot;   (quarter number, e.g. 2023q1)
+- auto (default) -&gt; for series: use $pd (time-series) or $panelpd (panel); otherwise fall back to simple month-scan auto-detection.
+*/
+
+strings Ret = array(0)
+string type_value = typename(value)
+string frequency = exists(frequency) ? tolower(strstrip(frequency)) : &quot;auto&quot;
+
+if type_value == &quot;scalar&quot;
+  if frequency == &quot;auto&quot;
+    matrix ym = get_year_month({value})
+    scalar m = ym[1,2]
+    frequency = (m==1 || m==4 || m==7 || m==10) ? &quot;quarterly&quot; : &quot;monthly&quot;
+  endif
+  string lab = period_label_from_value(value, frequency, quiet)
+  if lab == &quot;&quot; &amp;&amp; !quiet
+    printf(&quot;Warning: numeric value %d cannot be converted to period label.\n&quot;, value)
+  endif
+  Ret += lab
+  return Ret
+endif
+
+# Proceed with series and matrix typ
+set skip_missing off
+matrix mat = type_value == &quot;series&quot; ? {value} : vec(value)  # transform to column vector if matrix
+set skip_missing on
+scalar n_values = nelem(mat)
+Ret = array(n_values)
+if sum(!ok(mat)) &gt; 0 &amp;&amp; !quiet
+  print &quot;Warning: Input series contains missing values. Missing entries will be returned as empty strings.&quot;
+endif
+
+scalar pd = 0        # default assumption: cross-sectional case
+if type_value == &quot;series&quot;
+  if $datatype == 2
+    pd = $pd
+  elif $datatype == 3
+    pd = $panelpd
+  endif
+endif
+
+if frequency == &quot;auto&quot; &amp;&amp; pd == 0 # periodicity not determined, yet
+  if pd == 4
+    frequency = &quot;quarterly&quot;
+  elif pd == 12
+    frequency = &quot;monthly&quot;
+  else
+    /* fallback: scan months present in data */
+    matrix seen = mshape(0, 12, 1)
+    loop i=1..n_values
+      scalar v = mat[i]
+      if v &lt;= 0 || !ok(v)
+        continue
+      endif
+      matrix ym = get_year_month({v})
+      scalar m = ym[2]
+      if m &gt;=1 &amp;&amp; m &lt;= 12
+        seen[m] = 1
+      endif
+    endloop
+    scalar cnt_q = seen[1] + seen[4] + seen[7] + seen[10]
+    scalar tot_seen = sum(seen)
+    frequency = (cnt_q == tot_seen &amp;&amp; tot_seen &gt; 0) ? &quot;quarterly&quot; : &quot;monthly&quot;
+  endif
+
+else
+  string frequency = pd == 4 ? &quot;quarterly&quot; : pd == 12 ? &quot;monthly&quot; : frequency
+endif
+
+frequency = frequency == &quot;auto&quot; ? &quot;unsupported&quot; : frequency
+
+# Actual conversion
+loop i=1..nelem(Ret)
+  if mat[i] &lt;= 0 || missing(mat[i])
+    Ret[i] = &quot;&quot;
+  else
+    Ret[i] = period_label_from_value(mat[i], frequency, quiet)
+    if Ret[i] == &quot;&quot; &amp;&amp; !quiet
+      printf(&quot;Warning: entry %d at pos %d cannot be converted to period label.\n&quot;, mat[i], i)
+    endif
+  endif
+endloop
+
+return Ret
+</code>
+</gretl-function>
+<gretl-function name="is_valid_date_delimiter" type="scalar" private="1">
+ <params count="1">
+  <param name="date" type="string" const="true"/>
+ </params>
+<code>/* Check the delimiter of date components.
+return: int, TRUE if valid, otherwise FALSE. */
+
+if instring(date, &quot;:&quot;)
+  return TRUE
+endif
+
+return FALSE
+</code>
+</gretl-function>
+<gretl-function name="get_frequency_label" type="string" private="1">
+<code>/* Retrieve label for given periodicity of the underlying time-series or panel dataset.
+return: string, Frequency label for a given periodicity. */
+
+if $datatype == 2
+  pd = $pd
+elif $datatype == 3
+  pd = $nobs / $pd  # TODO: not sure that works with non-daily data
+else
+  funcerr &quot;Dataset must be either of type time-series or panel.&quot;
+endif
+
+if pd == 4
+  return &quot;quarterly&quot;
+elif pd == 12
+  return &quot;monthly&quot;
+else
+  errorif(TRUE, sprintf(&quot;Periodicity of the dataset (pd = %d) is not supported.&quot;, $pd))
+endif
+</code>
+</gretl-function>
+<gretl-function name="get_iso_date" type="scalar" private="1">
+ <params count="2">
+  <param name="parts" type="strings" const="true"/>
+  <param name="frequency" type="string" const="true"/>
+ </params>
+<code>/* Compile ISO8601 date integer value from 'parts'.
+return: int, Numeric date in ISO8601 format. */
+
+first = atof(parts[1])  # casts atof(&quot;01&quot;) -&gt; 1
+second = atof(parts[2])
+
+check_frequency_ranges(first, second, frequency)
+
+if frequency == &quot;quarterly&quot;                 # construct the ISO output
+  out  = first * 10000                    # year
+  out += ((second - 1) * 3 + 1) * 100     # first month in quarter
+  out += 1                                # first day in month
+elif frequency == &quot;monthly&quot;
+  out  = first * 10000
+  out += second * 100
+  out += 1
+endif
+
+return out
+</code>
+</gretl-function>
+<gretl-function name="check_frequency_ranges" type="void" private="1">
+ <params count="3">
+  <param name="first" type="int" const="true"/>
+  <param name="second" type="int" const="true"/>
+  <param name="frequency" type="string" const="true"/>
+ </params>
+<code>/* Check value ranges. Error if parameters are out of bounds. */
+
+if frequency == &quot;quarterly&quot;
+  errorif(first &lt; 1000 || first &gt; 9999, &quot;Year out of range&quot;)
+  errorif(second &lt; 1 || second &gt; 4, &quot;Quarter out of range&quot;)
+elif frequency == &quot;monthly&quot;
+  errorif(first &lt; 1000 || first &gt; 9999, &quot;Year out of range&quot;)
+  errorif(second &lt; 1 || second &gt; 12, &quot;Month out of range&quot;)
+else
+  errorif(TRUE, sprintf(&quot;Frequency '%s' not supported.&quot;, frequency))
+endif
+</code>
+</gretl-function>
+<gretl-function name="get_components_since_20223" type="void" private="1">
+ <params count="2">
+  <param name="ts" type="strings" const="true">
+<description>Timestamp</description>
+  </param>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Retrieve the date components. This function makes use of built-in functionalities since v20223. */
+
+self.second1970 = strptime(ts, self.format)
+self.date = strftime(self.second1970, &quot;%Y-%m-%d&quot;)
+strings year_str = strftime(self.second1970, &quot;%Y&quot;)
+strings month_str = strftime(self.second1970, &quot;%m&quot;)
+strings day_str = strftime(self.second1970, &quot;%d&quot;)
+strings hour_str = strftime(self.second1970, &quot;%H&quot;)
+strings minute_str = strftime(self.second1970, &quot;%M&quot;)
+
+if instring(self.format, &quot;%S&quot;)
+  second_str = strftime(self.second1970, &quot;%S&quot;)
+  self.time = strftime(self.second1970, &quot;%H:%M:%S&quot;)
+else
+  self.time = strftime(self.second1970, &quot;%H:%M&quot;)
+endif
+
+# TODO: Once atof() supports arrays, this loop can be removed
+loop foreach i ts
+  self.year[i] = atof(year_str[i])
+  self.month[i] = atof(month_str[i])
+  self.day[i] = atof(day_str[i])
+  self.hour[i] = atof(hour_str[i])
+  self.minute[i] = atof(minute_str[i])
+
+  if instring(self.format, &quot;%S&quot;)
+    self.second[i] = atof(second_str[i])
+  endif
+endloop
+</code>
+</gretl-function>
+<gretl-function name="get_components_before_20223" type="void" private="1">
+ <params count="2">
+  <param name="ts" type="strings" const="true">
+<description>Timestamp</description>
+  </param>
+  <param name="self" type="bundleref"/>
+ </params>
+<code>/* Retrieve the date components. This function is for versions lower than 20223. */
+
+loop foreach i ts
+  self.second1970[i] = strptime(&quot;$i&quot;, self.format)
+  self.date[i] = strftime(self.second1970[i], &quot;%Y-%m-%d&quot;)
+  self.year[i] = atof(strftime(self.second1970[i], &quot;%Y&quot;))
+  self.month[i] = atof(strftime(self.second1970[i], &quot;%m&quot;))
+  self.day[i] = atof(strftime(self.second1970[i], &quot;%d&quot;))
+  self.hour[i] = atof(strftime(self.second1970[i], &quot;%H&quot;))
+  self.minute[i] = atof(strftime(self.second1970[i], &quot;%M&quot;))
+
+  if instring(self.format, &quot;%S&quot;)
+    self.second[i] = atof(strftime(self.second1970[i], &quot;%S&quot;))
+    self.time[i] = strftime(self.second1970[i], &quot;%H:%M:%S&quot;)
+  else
+    self.time[i] = strftime(self.second1970[i], &quot;%H:%M&quot;)
+  endif
+endloop
+</code>
+</gretl-function>
+<gretl-function name="period_label_from_value" type="string" private="1">
+ <params count="3">
+  <param name="v" type="scalar" const="true"/>
+  <param name="frequency" type="string" const="true"/>
+  <param name="quiet" type="bool" default="1" const="true"/>
+ </params>
+<code>/* Helper: returns single label (&quot;YYYYmM&quot; or &quot;YYYYqQ&quot;) or empty string on error. */
+
+if frequency != &quot;monthly&quot; &amp;&amp; frequency != &quot;quarterly&quot;
+  if !quiet
+    printf(&quot;Warning: frequency '%s' not supported.\n&quot;, frequency)
+  endif
+  return &quot;&quot;
+endif
+
+if v &lt;= 0
+  return &quot;&quot;
+endif
+
+matrix ym = get_year_month(v)
+scalar y = int(ym[1,1])
+scalar m = int(ym[1,2])
+
+if m &lt; 1 || m &gt; 12
+  return &quot;&quot;
+endif
+
+if frequency == &quot;quarterly&quot;
+  scalar q = ceil(m / 3)
+  return sprintf(&quot;%dq%d&quot;, y, q)
+else
+  return sprintf(&quot;%dm%d&quot;, y, m)
+endif
+</code>
+</gretl-function>
+<gretl-function name="get_year_month" type="matrix" private="1">
+ <params count="1">
+  <param name="values" type="matrix" const="true">
+<description>iso8601</description>
+  </param>
+ </params>
+<code>/* Extract year and month from numeric ISO8601 dates. */
+
+matrix ret = mshape(NA, nelem(values), 2)
+ret[,1] = int(values ./ 10000)
+ret[,2] = int(values ./ 100) - (ret[,1] * 100)
+
+return ret
+</code>
+</gretl-function>
+<sample-script>
+clear
+set verbose off
+
+include calendar_utils.gfn
+
+# Cast date string to numeric ISO8601 format
+string date1 = &quot;2020-09-03&quot;
+string date2 = &quot;20200903&quot;
+string date3 = &quot;03-09-2020&quot;
+string date4 = &quot;03/09/2020&quot;
+
+scalar iso1 = date_to_iso8601(date1, &quot;%Y-%m-%d&quot;)
+scalar iso2 = date_to_iso8601(date2, &quot;%Y%m%d&quot;)
+scalar iso3 = date_to_iso8601(date3, &quot;%d-%m-%Y&quot;)
+scalar iso4 = date_to_iso8601(date4, &quot;%d/%m/%Y&quot;)
+
+print iso1 iso2 iso3 iso4
+
+# Cast numeric ISO8601 format back to extended ISO8601 date string (use iso8601_to_string)
+strings date1_cast_arr = iso8601_to_string(iso1)  # always returns a string array
+string date1_cast = date1_cast_arr[1]             # cast to string
+
+print date1_cast_arr date1_cast
+
+/* Suppose you have a vector or series of dates in the numeric ISO8601 format.
+   And you want to create an array of strings in the extended ISO8601
+   format which can be used for display or further string processing. */
+nulldata 3
+matrix mat = {20220101, 20220201, 20220103}'
+series input = mat
+
+strings dates_mat = iso8601_to_string(mat)
+strings dates_input = iso8601_to_string(input)
+
+# You get the same result for matrix and series inputs
+print dates_mat dates_input
+
+# If you want to attach these strings as series labels use 'stringify'
+series idx = seq(1, $nobs)'
+stringify(idx, dates_input)
+print input idx -o
+
+
+
+/* Now assume you have a date string series but you want to cast these
+string dates to numerical ISO8601 format. */
+nulldata 6
+series z = seq(1, 3)' | seq(1, 3)'
+strings dates = defarray(&quot;2020-09-01&quot;, &quot;2020-09-02&quot;, &quot;2020-09-03&quot;)
+stringify(z, dates)
+
+series y = dates_to_iso8601(z, &quot;%Y-%m-%d&quot;)
+print z y -o
+
+
+/* You may also want to use gretl's date format for date strings. */
+eval gdate_to_iso8601(&quot;1994:1&quot;, &quot;monthly&quot;)
+eval gdate_to_iso8601(&quot;1994:1&quot;, &quot;quarterly&quot;)
+eval gdate_to_iso8601(&quot;1994.12&quot;, &quot;monthly&quot;)
+
+/*  If the active dataset is of type panel or time-series, the frequency
+is internally determined. */
+setobs 12 2020:1 --time-series  # monthly frequency
+eval gdate_to_iso8601(&quot;1994:1&quot;)
+eval gdate_to_iso8601(&quot;1994:1&quot;)
+eval gdate_to_iso8601(&quot;1994.12&quot;)
+
+
+# Datetime components
+nulldata 2
+# with seconds
+strings ts = defarray(&quot;2022-12-07 00:00:33&quot;, &quot;2022-12-13 14:43:12&quot;)
+string format = &quot;%Y-%m-%d %H:%M:%S&quot;
+bundle B = datetime_components(ts, format)
+print B
+
+series hour = B.hour
+series minute = B.minute
+series date = B.date
+series second1970 = B.second1970
+print date hour minute second1970 -o
+
+
+# Period label examples
+nulldata 6
+# matrix input (auto-detect)
+matrix m = {20230315, 20230615, 20231201}
+strings labs_m = iso8601_to_period_label(m)
+print &quot;Matrix (auto-detect):&quot;
+print labs_m
+
+# scalar input
+scalar s = 20230315
+strings labs_s = iso8601_to_period_label(s)
+print &quot;Scalar (auto-detect):&quot;
+print labs_s
+
+# explicit frequency: quarterly
+strings labs_q = iso8601_to_period_label(m, &quot;quarterly&quot;)
+print &quot;Matrix (explicit quarterly):&quot;
+print labs_q
+
+# series / dataset-aware auto-detection
+nulldata 8
+setobs 4 2020:1 --time-series
+series iso = $obsdate
+strings labs_ts = iso8601_to_period_label(iso)
+print &quot;Series (dataset-aware):&quot;
+print labs_ts
+
+# NA handling
+matrix m2 = {20230101; NA; 20230301}
+strings labs_m2 = iso8601_to_period_label(m2)
+print &quot;Matrix with NA:&quot;
+print labs_m2
+</sample-script>
+</gretl-function-package>
+</gretl-functions>
