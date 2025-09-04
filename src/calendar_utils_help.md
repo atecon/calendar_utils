@@ -6,16 +6,16 @@ Most functions are small wrappers around gretl's built-in strptime()/strftime() 
 
 https://github.com/atecon/calendar_utils
 
-## Public functions
+# Public functions
 
-### date_to_iso8601(date, date_format)
+## date_to_iso8601(date, date_format)
 
-Arguments:
+*Arguments:*
 
 - `date`: string — a date string
 - `date_format`: string — format of `date`, e.g. `%Y-%m-%d`
 
-Return:
+*Return:*
 
 A scalar integer in numeric ISO8601 format (YYYYMMDD) on success; zero (FALSE) on error. Internally this uses gretl's `strptime()` and `strftime()`.
 
@@ -26,14 +26,14 @@ https://gretlml.univpm.it/hyperkitty/list/gretl-devel@gretlml.univpm.it/message/
 
 ---
 
-### dates_to_iso8601(dates, date_format)
+## dates_to_iso8601(dates, date_format)
 
-Arguments:
+*Arguments:*
 
 - `dates`: series — a series of date strings
 - `date_format`: string — format of the entries in `dates`, e.g. `%Y-%m-%d`
 
-Return:
+*Return:*
 
 A series of numeric ISO8601 dates (YYYYMMDD). For each entry, the function returns the numeric date if casting succeeds and zero (FALSE) on error.
 
@@ -41,7 +41,7 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 
 ---
 
-### iso8601_to_string(value, target_format[null])
+## iso8601_to_string(value, target_format[null])
 
 *Arguments:*
 
@@ -60,53 +60,53 @@ See the warning on `date_to_iso8601()` above regarding `strptime()` behavior in 
 
 ---
 
-### iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
+## iso8601_to_dates(dates) -- SUPERSEDED BY iso8601_to_string()
 
-Arguments:
+*Arguments:*
 
 - `dates`: series — series of numeric ISO8601 dates
 
-Return:
+*Return:*
 
 A string array (strings) with dates converted to extended ISO8601 format (`YYYY-MM-DD`) by default. Missing or invalid input entries are returned as empty strings. This function is the inverse of `dates_to_iso8601()` for common cases.
 
 ---
 
-### numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
+## numeric_to_extended_iso8601(date) -- SUPERSEDED BY iso8601_to_string()
 
-Arguments:
+*Arguments:*
 
 - `date`: int — numeric ISO8601 date in format `YYYYMMDD`
 
-Return:
+*Return:*
 
 A date string in extended ISO8601 format (`YYYY-MM-DD`) on success; an empty string on invalid input.
 
 ---
 
-### gdate_to_iso8601(date, frequency[null])
+## gdate_to_iso8601(date, frequency[null])
 
-Arguments:
+*Arguments:*
 
 - `date`: string — date string in gretl formats such as `%Y:%m` or `%Y.%m`
 - `frequency`: string (optional) — either `monthly` or `quarterly`. If omitted, the function attempts to determine periodicity from the active dataset.
 
-Return:
+*Return:*
 
 Numeric ISO8601 integer (YYYYMMDD) for monthly or quarterly input. Uses gretl's `strptime()`/`strftime()` internally.
 
 ---
 
-### datetime_components(ts, format[null])
+## datetime_components(ts, format[null])
 
 Extract date/time components from datetime (timestamp) strings.
 
-Arguments:
+*Arguments:*
 
 - `ts`: strings — array of datetime strings (timestamps)
 - `format`: string, optional — format of the timestamp; default is `%Y-%m-%d %H:%M`
 
-Return:
+*Return:*
 
 A bundle containing these elements:
 
@@ -118,15 +118,15 @@ A bundle containing these elements:
 
 ---
 
-### iso8601_to_period_label(value, frequency[null], quiet[TRUE])
+## iso8601_to_period_label(value, frequency[null], quiet[TRUE])
 
-Arguments:
+*Arguments:*
 
 - `value`: numeric — scalar, series, or column-vector matrix holding ISO8601 integers (YYYYMMDD)
 - `frequency`: string (optional) — one of `monthly`, `quarterly`, or `auto` (default). When `auto` the function attempts to infer periodicity: for series it uses the dataset frequency ($pd or $panelpd); otherwise a month-scan heuristic is used. An explicit `monthly` or `quarterly` value overrides auto-detection.
 - `quiet`: boolean (optional, default = TRUE) — if FALSE, emit warnings for entries that cannot be converted.
 
-Return:
+*Return:*
 
 - `strings`: an array of compact period labels. For monthly output labels are of the form `YYYYmM` (e.g. `2023m3`); for quarterly output labels are of the form `YYYYqQ` (e.g. `2023q1`). Missing or invalid inputs produce an empty string at the corresponding position.
 
